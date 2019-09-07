@@ -3,9 +3,19 @@ import connection
 class Client:
     """ 
     A client sends messages to a server, and receives them.
+    Clients are specialized by specifying connection, endpoint, and
+    credentials. Connection allows clients to send messages over different 
+    backbones, endpoint defines what type of client this is (Etsy, Weebly, etc.),
+    and credentials (Typicall Oauth) identify a user using a service. 
     """
-    def __init__( self, connection = None ):
+    def __init__( self,
+                  connection = None,
+                  endpoint = None,
+                  credentials = None
+                ):
         self._connection = connection
+        self._endpoint   = endpoint
+        self._credentials      = credentials
 
     def set_connection( self, server_connection ):
         """
@@ -40,5 +50,37 @@ class Client:
            True if the client has a connection, False otherwise.
         """
         # return whethe the client currently has a connection. 
+        pass
+
+    """
+    Set the client's endpoint. 
+    """
+    def set_endpoint( self, endpoint ):
+        pass
+
+    """
+    Get the endpoint this client is able to 
+    communicate with. The client uses its connection 
+    to send messages to the endpoint.
+
+    Returns:
+      The endpoint associated with this client.
+    """
+    def get_endpoint( self ):
+        pass
+
+    """
+    Set this objects credentials.
+
+    Args:
+      credential: The new credential for this object
+    """
+    def set_credentials( self, credential ):
+        pass
+
+    """
+    Return this object's credentials.
+    """
+    def get_credentials( self ):
         pass
 
