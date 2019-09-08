@@ -108,4 +108,39 @@ class Client:
       method: APIMethod (or equivalent) to add to the class.
     """
     def _specialize_with( self, method ):
-        pass
+
+        """
+        A prototype for the new method to add 
+        to our client. The actual method that is defined will 
+        already have uri and http_method defined by the method 
+        passed to this function.
+        
+        """
+        def new_method( self,
+                        uri = "",
+                        http_method = "",
+                        **kwargs
+                      ):
+            m_args = dict()
+
+            m_args[ 'uri' ] = uri
+            m_args[ 'credentials' ] = self.get_credentials().as_dict()
+            m_args[ 'method' ] = dict()
+
+            m_args[ 'method' ][ 'name' ] = method_name
+            m_args[ 'method' ][ 'params' ] = kwargs
+
+            self.get_connection().send( m_args )
+
+        uri = method.get_uri()
+        http_method = method.get_http_method()
+        args = http_method.args_as_dict()
+
+        method_name = method.__name__
+
+        fn = lambda **kwargs: new_method( self, uri = uri,
+                                          http_method = method,
+                                          **kwargs
+                                        )
+        
+        setattr( self, method.__name__, fn )
