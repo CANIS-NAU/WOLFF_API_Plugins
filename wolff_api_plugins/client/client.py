@@ -13,9 +13,9 @@ class Client:
                   endpoint = None,
                   credentials = None
                 ):
-        self._connection = connection
-        self._endpoint   = endpoint
-        self._credentials      = credentials
+        self._connection  = connection
+        self._endpoint    = endpoint
+        self._credentials = credentials
 
     def set_connection( self, server_connection ):
         """
@@ -84,3 +84,28 @@ class Client:
     def get_credentials( self ):
         pass
 
+
+    """
+    Specialize this class, adding all of its 
+    endpoint methods to itself. 
+    This allows a generic 'Client' to 
+    become an etsy client. Instead of calling:
+    client.get_endpoint().method(), 
+    client.method() can be called. 
+    """
+    def specialize( self ):
+
+        # for each method in api endpoint
+        for method in self._endpoint.get_methods():
+            self._specialize_with( method )
+
+    """
+    Specialize the client with a certain method.
+    Adds the method to the client, allowing 
+    client.method( args ) to be called.
+
+    Params:
+      method: APIMethod (or equivalent) to add to the class.
+    """
+    def _specialize_with( self, method ):
+        pass
