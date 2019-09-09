@@ -16,6 +16,28 @@ Server
 .. automodule:: wolff_api_plugins.server.server
    :members:
 
+Message
+=======
+.. automodule:: wolff_api_plugins.client.message
+   :members:
+
+
+OauthCredentials
+================
+.. automodule:: wolff_api_plugins.client.oauth_credentials
+   :members:
+
+
+Server Connection
+=================
+.. automodule:: wolff_api_plugins.client.server_connection
+   :members:
+
+Client
+======
+.. automodule:: wolff_api_plugins.client.client
+   :members:
+
 
 Indices and tables
 ==================
@@ -23,3 +45,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
