@@ -1,4 +1,4 @@
-from message import Message
+from .message import Message as Message
 import socket 
 import time
 from numpy import inf as inf

@@ -1,5 +1,4 @@
-import connection
-from message import Message as Message
+from .message import Message as Message
 
 class Client:
     """ 
