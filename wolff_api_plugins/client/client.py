@@ -1,4 +1,5 @@
 import connection
+from message import Message as Message
 
 class Client:
     """ 
@@ -130,7 +131,7 @@ class Client:
             m_args[ 'method' ][ 'name' ] = method_name
             m_args[ 'method' ][ 'params' ] = kwargs
 
-            self.get_connection().send( m_args )
+            self.get_connection().send( Message( m_args ) )
 
         uri = method.get_uri()
         http_method = method.get_http_method()
