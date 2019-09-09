@@ -1,4 +1,7 @@
 from message import Message
+import socket 
+import time
+from numpy import inf as inf
 
 class TCPServerConnection:
     """
@@ -13,5 +16,24 @@ class TCPServerConnection:
         self._ip = ip
         self._port = port
 
-    def send( self, message ):
+    def send( self, message, timeout = inf ):
+        """
+        Sends an object of type  message 
+        to the specified TCP ip address 
+        over the specified port.
+        Waits for a specified amount of time 
+        for a response from the server, disconnects 
+        after waiting and not getting a response.
+        """
+
+        # open the socket using this object's host and
+        # ip address
+
+          # if timeout is not inf set the timeout
+          
+          # connect to the server using our socket
+             # send the string representation of the message
+                 # Hint( str() method socket.sendall() method,
+                 #  and remember to encode the mesage
         pass
+        
