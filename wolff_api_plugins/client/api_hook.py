@@ -1,18 +1,28 @@
 
 class APIHook:
     def __init__( self, base_url = "",
-                  
+                  methods = None
                 ):
-        pass
+        self.base_url = base_url
+        self.methods = methods if methods else list()
 
     def get_methods( self ):
-        pass
+        return self.methods
 
     def add_method( self, method ):
-        pass
+        self.methods.append( method )
 
     def add_methods( self, methods ):
-        pass
+        self.methods += methods
+
+    def get_url( self ):
+        return self.base_url
+
+    def set_url( self, url ):
+        self.base_url = url
+
+    def get_complet_url( self, method ):
+        return f'{self.get_url()}/{method.get_uri()}/'
 
 class APIMethod:
     """
@@ -22,10 +32,11 @@ class APIMethod:
     a set of arguments that are included 
     in the call of an API Method.
     """
-    def __init__( self, uri = "", args = None, http_method = "" ):
+    def __init__( self, uri = "", args = None, http_method = "", name = "" ):
         self.uri = uri
-        self.args = args if args else None
+        self.args = args if args else dict()
         self.http_method = http_method
+        self.name = name
 
     def get_http_method( self ):
         """
@@ -47,12 +58,13 @@ class APIMethod:
         self.uri = uri
 
     def add_arg( self, arg ):
-        if self.args is None:
-            self.args = dict()
         self.args[ arg ] = ''
 
     def set_args( self, args ):
-        if self.args is None:
-            self.args = dict()
-
         self.args.update( args )
+
+    def set_name( self, name ):
+        self.name = name
+
+    def get_name( self ):
+        return self.name
