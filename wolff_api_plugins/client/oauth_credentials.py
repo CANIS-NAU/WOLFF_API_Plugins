@@ -23,7 +23,13 @@ class OAuth1Credentials:
           - resource_owner_token
           - resource_owner_secret       
         """
-        pass
+        with open( fname, 'r' ) as of:
+            for line in of:
+                line = line.strip()
+                spl = line.split( '\t' )
+
+                # TODO: this is dangerous, find better way
+                setattr( self, spl[ 0 ], spl[ 1 ] )
 
     def set_client_info( self, client_key, client_secret ):
         """
@@ -58,7 +64,7 @@ class OAuth1Credentials:
         Returns:
           Dictionary representing this object,
           for example:
-           { 'oauth_token_secret': 'adfsdfsdflflslflds' }
+           { 'resource_owner_secret': 'adfsdfsdflflslflds' }
         
         """
         return vars( self )
