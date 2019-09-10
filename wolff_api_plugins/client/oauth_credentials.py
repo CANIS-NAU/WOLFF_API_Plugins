@@ -6,10 +6,10 @@ class OAuth1Credentials:
                   access_token = "",
                   acces_secret = ""
                 ):
-        self.api_key       = api_key
-        self.api_secret    = api_secret
-        self.access_token  = access_token
-        self.access_secret = access_secret
+        self.client_key       = api_key
+        self.client_secret    = api_secret
+        self.resource_owner_key  = access_token
+        self.resource_owner_secret = access_secret
 
     def get_from_file( self, fname ):
         """
@@ -18,37 +18,37 @@ class OAuth1Credentials:
         one for each item used in the authentication 
         process. The first column must have names that correspond
         to the items needed for authentication, e.g.:
-          - api_key             
-          - api_secret
-          - access_token
-          - access_secret       
+          - client_key             
+          - client_secret
+          - resource_owner_token
+          - resource_owner_secret       
         """
         pass
 
-    def set_api_info( self, api_key, api_secret ):
+    def set_client_info( self, client_key, client_secret ):
         """
-        Set the api information (token and secret) for 
+        Set the client information (token and secret) for 
         this class
         
         Args:
-          api_token: the api token to set.
-          acccess_secret: the api secret to set.
+          client_token: the client token to set.
+          acccess_secret: the client secret to set.
         """
 
-        self.api_key = api_key
-        self.api_secret = api_secret
+        self.client_key = client_key
+        self.client_secret = client_secret
 
-    def set_access_info( self, access_token, access_secret ):
+    def set_resource_owner_info( self, resource_owner_token, resource_owner_secret ):
         """
-        Set the access information (token and secret) for 
+        Set the resource_owner information (token and secret) for 
         this class
         
         Args:
-          access_token: the access token to set.
-          acccess_secret: the access secret to set.
+          resource_owner_token: the resource_owner token to set.
+          acccess_secret: the resource_owner secret to set.
         """
-        self.access_key = access_key
-        self.access_secret = access_secret
+        self.resource_owner_key = resource_owner_key
+        self.resource_owner_secret = resource_owner_secret
 
     def as_dict( self ):
         """
