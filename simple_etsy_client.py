@@ -13,10 +13,10 @@ def main():
 
     create_listing = hook.APIMethod( uri = 'listings',
                                      args = args,
-                                     http_method = 'put',
+                                     http_method = 'post',
                                      name = 'createListing'
                                    )
-    etsy_hook = hook.APIHook( base_url = 'https://openapi.etsy.com/v2/',
+    etsy_hook = hook.APIHook( base_url = 'https://openapi.etsy.com/v2',
                               methods = [ create_listing ]
                             )
 
@@ -24,6 +24,7 @@ def main():
                                         port = 5555
                                       )
     auth = cred.OAuth1Credentials()
+    auth.get_from_file( 'keys.tsv' )
 
     etsy_client = client.Client( connection = connect, endpoint = etsy_hook,
                                  credentials = auth
