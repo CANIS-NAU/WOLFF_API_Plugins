@@ -16,6 +16,7 @@ def main():
                                      http_method = 'post',
                                      name = 'createListing'
                                    )
+
     etsy_hook = hook.APIHook( base_url = 'https://openapi.etsy.com/v2',
                               methods = [ create_listing ]
                             )
@@ -31,11 +32,12 @@ def main():
                                 )
     etsy_client.specialize()
 
-    etsy_client.createListing( quantity = 1, title = "Will this work?",
-                               description = "Description of the item.",
-                               price = 0.45, who_made = 'i_did', is_supply = True,
-                               when_made = 'made_to_order', shipping_template_id = 76575991147
-                             )
+    result = etsy_client.createListing( quantity = 1, title = "Will this work?",
+                                        description = "Description of the item.",
+                                        price = 0.45, who_made = 'i_did', is_supply = True,
+                                        when_made = 'made_to_order', shipping_template_id = 76575991147
+                                      )
+    print( result )
 
 
 if __name__ == '__main__':
