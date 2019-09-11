@@ -12,7 +12,7 @@ class WOLFFServer:
         self.port = port
 
     def get_ip( self ):
-        pass
+        return self.ip
 
     def set_ip( self, ip ):
         self.ip = ip
@@ -26,21 +26,44 @@ class WOLFFServer:
     def start( self ):
         with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
             # bind to the socket 
+            sock.bind( ( self.get_ip(), self.get_port() ) )
 
             # listen
+            sock.listen() 
 
             # accept a connection
+            conn, addr = sock.accept()
 
-            # while true
-                # receive message
+            while True:
+                
+                # while true
+                with conn:
+                    
+                    # receive message
+                    while True:
 
-                # get credentials and URL from the message
-                # get the method name from the URL 
+                        data = conn.recv( 4096 )
 
-                # get the params from the message
+                        if not data:
+                            break
 
-                # create the OAuth session from our credentials
+                        # get the method name from the URL 
+                        data_dict = json.loads( data.decode( 'ascii' ) )
 
-                # send the message 
-            pass
+                        print( data_dict )
+
+                        request_handler = self.get_request_handler( data_dict[ 'credentials' ] )
+
+                        # get the params from the message
+                        # create the OAuth session from our credentials
+                        # send the message 
+                        result = getattr( request_handler, data_dict[ 'method' ] )( data_dict[ 'url' ], data = data_dict[ 'params' ] )
+                        print( result.content )
+
+
+
+
+
+    def get_request_handler( self, credentials ):
+        return OAuth1Session( **credentials )
 
