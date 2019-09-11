@@ -1,4 +1,6 @@
-
+from requests_oauthlib import OAuth1Session
+import socket
+import json
 
 class WOLFFServer:
     """ 
@@ -20,3 +22,25 @@ class WOLFFServer:
 
     def get_port( self ):
         return self.port
+
+    def start( self ):
+        with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
+            # bind to the socket 
+
+            # listen
+
+            # accept a connection
+
+            # while true
+                # receive message
+
+                # get credentials and URL from the message
+                # get the method name from the URL 
+
+                # get the params from the message
+
+                # create the OAuth session from our credentials
+
+                # send the message 
+            pass
+
