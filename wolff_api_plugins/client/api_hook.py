@@ -21,7 +21,7 @@ class APIHook:
     def set_url( self, url ):
         self.base_url = url
 
-    def get_complet_url( self, method ):
+    def get_complete_url( self, method ):
         return f'{self.get_url()}/{method.get_uri()}/'
 
 class APIMethod:
