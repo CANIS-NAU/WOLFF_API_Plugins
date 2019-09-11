@@ -23,6 +23,19 @@ def main():
     connect = conn.TCPServerConnection( ip = "127.0.0.1",
                                         port = 5555
                                       )
+    auth = cred.OAuth1Credentials()
+
+    etsy_client = client.Client( connection = connect, endpoint = etsy_hook,
+                                 credentials = auth
+                                )
+    etsy_client.specialize()
+
+    etsy_client.createListing( quantity = 1, title = "Will this work?",
+                               description = "Description of the item.",
+                               price = 0.45, who_made = 'i_did', is_supply = True,
+                               when_made = 'made_to_order', shipping_template_id = 76575991147
+                             )
+
 
 if __name__ == '__main__':
     main()
