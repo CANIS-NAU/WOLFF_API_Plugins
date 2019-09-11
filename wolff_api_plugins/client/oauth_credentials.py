@@ -4,7 +4,7 @@ class OAuth1Credentials:
                   api_key      = "",
                   api_secret   = "",
                   access_token = "",
-                  acces_secret = ""
+                  access_secret = ""
                 ):
         self.client_key       = api_key
         self.client_secret    = api_secret
