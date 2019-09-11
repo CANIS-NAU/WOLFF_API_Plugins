@@ -129,7 +129,7 @@ class Client:
             m_args[ 'method' ][ 'params' ] = kwargs
             m_args[ 'method' ][ 'http_method' ] = http_method.get_http_method()
 
-            self.get_connection().send( Message( m_args ) )
+            return self.get_connection().send( Message( m_args ) )
 
         url = endpoint.get_complete_url( method )
         http_method = method.get_http_method()
