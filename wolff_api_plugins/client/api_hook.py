@@ -51,6 +51,9 @@ class APIMethod:
     def args_as_dict( self ):
         return self.get_args()
 
+    def get_args( self ):
+        return self.args
+
     def set_http_method( self, method ):
         self.http_method = method
 
