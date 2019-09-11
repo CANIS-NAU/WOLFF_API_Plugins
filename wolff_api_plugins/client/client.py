@@ -40,7 +40,7 @@ class Client:
         
         """
         # return this object's server connection
-        pass
+        return self._connection
 
     def has_connection( self ):
         """
@@ -82,7 +82,7 @@ class Client:
     Return this object's credentials.
     """
     def get_credentials( self ):
-        pass
+        return self._credentials
 
 
     """
@@ -97,7 +97,7 @@ class Client:
 
         # for each method in api endpoint
         for method in self._endpoint.get_methods():
-            self._specialize_with( method )
+            self._specialize_with( self._endpoint, method )
 
     """
     Specialize the client with a certain method.
@@ -107,7 +107,7 @@ class Client:
     Params:
       method: APIMethod (or equivalent) to add to the class.
     """
-    def _specialize_with( self, method ):
+    def _specialize_with( self, endpoint, method ):
 
         """
         A prototype for the new method to add 
@@ -117,30 +117,29 @@ class Client:
         
         """
         def new_method( self,
-                        uri = "",
+                        url = "",
                         http_method = "",
                         **kwargs
                       ):
             m_args = dict()
 
-            m_args[ 'uri' ] = uri
+            m_args[ 'url' ] = url
             m_args[ 'credentials' ] = self.get_credentials().as_dict()
             m_args[ 'method' ] = dict()
-
-            m_args[ 'method' ][ 'name' ] = method_name
             m_args[ 'method' ][ 'params' ] = kwargs
+            m_args[ 'method' ][ 'http_method' ] = http_method.get_http_method()
 
             self.get_connection().send( Message( m_args ) )
 
-        uri = method.get_uri()
+        url = endpoint.get_complete_url( method )
         http_method = method.get_http_method()
-        args = http_method.args_as_dict()
+        args = method.args_as_dict()
 
-        method_name = method.__name__
+        method_name = method.get_name()
 
-        fn = lambda **kwargs: new_method( self, uri = uri,
+        fn = lambda **kwargs: new_method( self, url = url,
                                           http_method = method,
                                           **kwargs
                                         )
         
-        setattr( self, method.__name__, fn )
+        setattr( self, method_name, fn )
