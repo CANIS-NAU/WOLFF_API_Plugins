@@ -31,11 +31,11 @@ class WOLFFServer:
             # listen
             sock.listen() 
 
-            # accept a connection
-            conn, addr = sock.accept()
 
             while True:
-                
+                # accept a connection
+                conn, addr = sock.accept()
+
                 # while true
                 with conn:
                     
@@ -57,8 +57,8 @@ class WOLFFServer:
                         # get the params from the message
                         # create the OAuth session from our credentials
                         # send the message 
-                        result = getattr( request_handler, data_dict[ 'method' ] )( data_dict[ 'url' ], data = data_dict[ 'params' ] )
-                        print( result.content )
+                        result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ], data = data_dict[ 'method' ][ 'params' ] )
+                        conn.sendall( result.content )
 
 
 
