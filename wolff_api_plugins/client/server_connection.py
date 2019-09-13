@@ -47,5 +47,6 @@ class TCPServerConnection:
           
           # connect to the server using our socket
              # send the string representation of the message
-                 # Hint( str() method socket.sendall() method,
+             # create a Message and send it
+                 # Hint( str( Method ) method socket.sendall() method,
                  #  and remember to encode the mesage
