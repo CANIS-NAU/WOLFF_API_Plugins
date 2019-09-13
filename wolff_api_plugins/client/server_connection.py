@@ -16,6 +16,21 @@ class TCPServerConnection:
         self._ip = ip
         self._port = port
 
+
+    def get_ip( self ):
+        """
+        Return the (IPv4) IP this connection will 
+        bind to when a connection is initialized
+        """
+        pass
+
+    def get_port( self ):
+        """
+        Return the port this connection will bind to 
+        when initiating a connection.
+        """
+        pass
+    
     def send( self, message, timeout = inf ):
         """
         Sends an object of type  message 
@@ -28,13 +43,7 @@ class TCPServerConnection:
 
         # open the socket using this object's host and
         # ip address
-        with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
-            sock.connect( ( self._ip, self._port ) )
-
-            sock.sendall( str( message ).encode() )
-
           # if timeout is not inf set the timeout
-            return sock.recv( 4096 ).decode( 'ascii' )
           
           # connect to the server using our socket
              # send the string representation of the message
