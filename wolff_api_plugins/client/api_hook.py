@@ -1,3 +1,4 @@
+import re
 
 class APIHook:
     def __init__( self, base_url = "",
@@ -45,7 +46,29 @@ class APIMethod:
         """
         return self.http_method
 
-    def get_uri( self ):
+    def get_uri( self, substitute = True ):
+        """
+        Get the method's URI. If there are substitutable
+        parameters (parameters that appear in the URI 
+        in the form: /:param_name/ will be substituted if 
+        'substitue' is set to true. So if user_id is an argument
+        to a method whose URI looks like:
+        '/:user_id/', then the value of user_id wil take place
+        of the item between the slashes.
+
+        Args:
+           - substitute: Include if URI substitution as explained
+             above should be done. This only happens if the 
+             value in self.args_as_dict() is set. If false, the 
+             unchanged value will be used.
+        
+        Raises:
+          - ValueError if substitute is true but there is no
+            valid substitution to make in the args.
+        
+        Returns:
+          - The string URI of this method
+        """
         return self.uri
 
     def args_as_dict( self ):
