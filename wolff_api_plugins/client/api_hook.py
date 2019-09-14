@@ -39,6 +39,11 @@ class APIMethod:
         self.http_method = http_method
         self.name = name
 
+        # Matches strings of the form:
+        #/whatever/you/want/:param/whatever
+        # :param is captured
+        self.uri_re = r"\S*/(:\S+)/\S*"
+
     def get_http_method( self ):
         """
         Get the HTTP method this 
@@ -69,6 +74,9 @@ class APIMethod:
         Returns:
           - The string URI of this method
         """
+
+        if substitue and self._uri_is_substitutable():
+            pass
         return self.uri
 
     def args_as_dict( self ):
@@ -94,3 +102,10 @@ class APIMethod:
 
     def get_name( self ):
         return self.name
+
+    def _uri_is_substitutable( self ):
+        """
+        Determine if this uri has a parameter 
+        that can be substituted by a user-defined value. 
+        """
+        return re.search( self.uri_re, self.uri) 
