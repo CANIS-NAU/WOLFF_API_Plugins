@@ -41,8 +41,11 @@ class APIMethod:
 
         # Matches strings of the form:
         #/whatever/you/want/:param/whatever
-        # :param is captured
-        self.uri_re = r"\S*/(:\S+)/\S*"
+        # param is captured
+        self.uri_re = re.compile( ":((?:[a-zA-Z]|_)+)" )
+
+    def set_parameter_re( self, new_re ):
+        self.uri_re = new_re
 
     def get_http_method( self ):
         """
@@ -51,12 +54,15 @@ class APIMethod:
         """
         return self.http_method
 
+    def get_uri_replacement( self, match ):
+        return self.args[ match.group( 1 ) ]
+
     def get_uri( self, substitute = True ):
         """
         Get the method's URI. If there are substitutable
         parameters (parameters that appear in the URI 
         in the form: /:param_name/ will be substituted if 
-        'substitue' is set to true. So if user_id is an argument
+        'substitute' is set to true. So if user_id is an argument
         to a method whose URI looks like:
         '/:user_id/', then the value of user_id wil take place
         of the item between the slashes.
@@ -75,9 +81,15 @@ class APIMethod:
           - The string URI of this method
         """
 
-        if substitue and self._uri_is_substitutable():
-            pass
-        return self.uri
+        if substitute and self._uri_is_substitutable():
+            try:
+                uri = self.uri_re.sub( self.get_uri_replacement, self.uri )
+
+            except KeyError:
+                raise ValueError( "Substitutable argument for "
+                                  "URI has not been set."
+                                )
+        return uri
 
     def args_as_dict( self ):
         return self.get_args()
