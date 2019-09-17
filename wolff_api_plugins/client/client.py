@@ -117,27 +117,33 @@ class Client:
         
         """
         def new_method( self,
-                        url = "",
+                        base_url = "",
                         http_method = "",
                         **kwargs
                       ):
             m_args = dict()
 
-            m_args[ 'url' ] = url
+            http_method.set_args( kwargs )
+
+            m_args[ 'url' ] = base_url + http_method.get_uri( substitute = True )
             m_args[ 'credentials' ] = self.get_credentials().as_dict()
             m_args[ 'method' ] = dict()
-            m_args[ 'method' ][ 'params' ] = kwargs
+            m_args[ 'method' ][ 'params' ] = http_method.args_as_dict()
             m_args[ 'method' ][ 'http_method' ] = http_method.get_http_method()
 
-            return self.get_connection().send( Message( m_args ) )
+            ret = self.get_connection().send( Message( m_args ) )
 
-        url = endpoint.get_complete_url( method )
+            http_method.clear_args()
+
+            return ret
+
+        url = endpoint.get_url()
         http_method = method.get_http_method()
         args = method.args_as_dict()
 
         method_name = method.get_name()
 
-        fn = lambda **kwargs: new_method( self, url = url,
+        fn = lambda **kwargs: new_method( self, base_url = url,
                                           http_method = method,
                                           **kwargs
                                         )
