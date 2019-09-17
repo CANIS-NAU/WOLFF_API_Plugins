@@ -17,9 +17,6 @@ def main():
                                      name = 'createListing'
                                    )
 
-    etsy_hook = hook.APIHook( base_url = 'https://openapi.etsy.com/v2',
-                              methods = [ create_listing ]
-                            )
 
     connect = conn.TCPServerConnection( ip = "127.0.0.1",
                                         port = 5555
@@ -27,16 +24,29 @@ def main():
     auth = cred.OAuth1Credentials()
     auth.get_from_file( 'keys.tsv' )
 
+    args = { 'user_id': '' }
+
+    gubo = hook.APIMethod( uri = '/users/:user_id/billing/overview',
+                           args = args, http_method = 'get', name = 'gubo'
+                         )
+
+    etsy_hook = hook.APIHook( base_url = 'https://openapi.etsy.com/v2',
+                              methods = [ create_listing, gubo ]
+                            )
+
+
     etsy_client = client.Client( connection = connect, endpoint = etsy_hook,
                                  credentials = auth
                                 )
     etsy_client.specialize()
 
-    result = etsy_client.createListing( quantity = 1, title = "Will this work?",
-                                        description = "Description of the item.",
-                                        price = 0.45, who_made = 'i_did', is_supply = True,
-                                        when_made = 'made_to_order', shipping_template_id = 76575991147
-                                      )
+    # result = etsy_client.createListing( quantity = 1, title = "Will this work?",
+    #                                     description = "Description of the item.",
+    #                                     price = 0.45, who_made = 'i_did', is_supply = True,
+    #                                     when_made = 'made_to_order', shipping_template_id = 76575991147
+    #                                   )
+
+    result = etsy_client.gubo( user_id = 'ezk6e2q6', dickhead = 'me' )
     print( result )
 
 
