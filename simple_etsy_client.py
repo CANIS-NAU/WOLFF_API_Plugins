@@ -46,7 +46,7 @@ def main():
     #                                     when_made = 'made_to_order', shipping_template_id = 76575991147
     #                                   )
 
-    result = etsy_client.gubo( user_id = 'ezk6e2q6', dickhead = 'me' )
+    result = etsy_client.gubo( user_id = 'ezk6e2q6' )
     print( result )
 
 
