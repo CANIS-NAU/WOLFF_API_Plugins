@@ -42,6 +42,18 @@ class TCPServerConnection:
         """
 
         # open the socket using this object's host and
+        with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
+            sock.connect( ( self._ip, self._port ) )
+
+            sock.sendall( str( message ).encode() )
+
+          # if timeout is not inf set the timeout
+            return sock.recv( 4096 ).decode( 'ascii' )
+          
+          # connect to the server using our socket
+             # send the string representation of the message
+                 # Hint( str() method socket.sendall() method,
+                 #  and remember to encode the mesage
         # ip address
           # if timeout is not inf set the timeout
           
