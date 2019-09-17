@@ -57,7 +57,10 @@ class WOLFFServer:
                         # get the params from the message
                         # create the OAuth session from our credentials
                         # send the message 
-                        result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ], data = data_dict[ 'method' ][ 'params' ] )
+                        if data_dict[ 'method' ] == 'get':
+                            result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ] )
+                        else:
+                            result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ], data = data_dict[ 'method' ][ 'params' ] )
                         conn.sendall( result.content )
 
 
