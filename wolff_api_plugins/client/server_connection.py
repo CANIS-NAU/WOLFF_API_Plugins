@@ -48,7 +48,7 @@ class TCPServerConnection:
             sock.sendall( str( message ).encode() )
 
           # if timeout is not inf set the timeout
-            return sock.recv( 4096 ).decode( 'ascii' )
+            return sock.recv( 4096 ).decode( 'utf-8' )
           
           # connect to the server using our socket
              # send the string representation of the message
