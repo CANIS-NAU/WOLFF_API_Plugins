@@ -18,8 +18,8 @@ def main():
                                    )
 
 
-    connect = conn.TCPServerConnection( ip = "127.0.0.1",
-                                        port = 5555
+    connect = conn.MQTTServerConnection( ip = "127.0.0.1",
+                                         port = 1883
                                       )
     auth = cred.OAuth1Credentials()
     auth.get_from_file( 'keys.tsv' )
