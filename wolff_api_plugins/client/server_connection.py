@@ -1,4 +1,5 @@
 from .message import Message as Message
+import paho.mqtt.client as mqtt
 import socket 
 import time
 from numpy import inf as inf
@@ -63,3 +64,34 @@ class TCPServerConnection:
                  # Hint( str( Method ) method socket.sendall() method,
                  #  and remember to encode the mesage
         pass
+
+
+class MQTTServerConnection:
+    def __init__( self, ip = "127.0.0.1",
+                  port = 0,
+                  timeout = 60
+
+                ):
+        self._ip = ip
+        self._port = port
+        self._timeout = timeout
+        self._client = mqtt.Client()
+
+
+    def get_ip( self ):
+        return self._ip
+    
+    def get_port( self ):
+        return self._port
+
+    def get_timeout( self ):
+        return self._timeout
+
+
+    def send( self, message ):
+        self._client.connect( self.get_ip(),
+                              self.get_port(),
+                              self.get_timeout()
+                            )
+        self._client.publish( 'arnold', str( message ) )
+
