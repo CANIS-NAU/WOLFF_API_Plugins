@@ -1,6 +1,7 @@
 from requests_oauthlib import OAuth1Session
 import socket
 import json
+import paho.mqtt.client as mqtt
 
 class WOLFFServer:
     """ 
@@ -70,3 +71,38 @@ class WOLFFServer:
     def get_request_handler( self, credentials ):
         return OAuth1Session( **credentials )
 
+
+class MQTTServer( WOLFFServer ):
+    def __init__( self, ip, port, channels = None ):
+        super().__init__( ip, port )
+        self._channels = channels if channels else None
+
+        def on_connect( client, userdata, flags, rc, channels = None ):
+            print( "Connected with result code " + str( rc )  )
+
+            for chan in channels:
+                client.subscribe( chan )
+
+        def on_message( client, userdata, msg ):
+            print( msg.topic + " " + str( msg.payload ) )
+
+        self.on_connect = lambda client, userdata, flags, rc: on_connect( client, userdata, flags, rc, channels = self._channels )
+        self.on_message = on_message
+
+    def start( self, timeout = 60 ):
+        client = mqtt.Client()
+
+        client.on_connect = self.on_connect
+        client.on_message = self.on_message
+
+        client.connect( self.get_ip(), self.get_port(), timeout )
+
+        client.loop_forever()
+
+        
+
+    def add_channel( self, channel ):
+        self._channels.append( channel )
+
+    def add_channels( self, channels ):
+        self._channels += channels
