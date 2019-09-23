@@ -93,5 +93,7 @@ class MQTTServerConnection:
                               self.get_port(),
                               self.get_timeout()
                             )
-        self._client.publish( 'arnold', str( message ) )
+        ret = self._client.publish( 'arnold', str( message ) )
+
+        return ret.mid
 
