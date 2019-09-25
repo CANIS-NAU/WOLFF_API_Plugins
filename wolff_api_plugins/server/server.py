@@ -24,6 +24,18 @@ class WOLFFServer:
     def get_port( self ):
         return self.port
 
+    def decode_data( self, data ):
+        return json.loads( data.decode( 'utf-8' ) )
+
+    def do_request( self, data_dict ):
+        request_handler = self.get_request_handler( data_dict[ 'credentials' ] )
+
+        if data_dict[ 'method' ] == 'get':
+            result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ] )
+        else:
+            result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ], data = data_dict[ 'method' ][ 'params' ] )
+        return result
+
     def start( self ):
         with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
             # bind to the socket 
@@ -49,19 +61,10 @@ class WOLFFServer:
                             break
 
                         # get the method name from the URL 
-                        data_dict = json.loads( data.decode( 'ascii' ) )
+                        data_dict = decode_data( data )
 
                         print( data_dict )
-
-                        request_handler = self.get_request_handler( data_dict[ 'credentials' ] )
-
-                        # get the params from the message
-                        # create the OAuth session from our credentials
-                        # send the message 
-                        if data_dict[ 'method' ] == 'get':
-                            result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ] )
-                        else:
-                            result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ], data = data_dict[ 'method' ][ 'params' ] )
+                        result = self.do_request( data_dict )
                         conn.sendall( result.content )
 
 
@@ -86,7 +89,13 @@ class MQTTServer( WOLFFServer ):
         def on_message( client, userdata, msg ):
             print( msg.topic + " " + str( msg.payload ) )
 
-        self.on_connect = lambda client, userdata, flags, rc: on_connect( client, userdata, flags, rc, channels = self._channels )
+            # get the method name from the URL 
+            data_dict = decode_data( data )
+
+            self.do_request( data_dict )
+
+        self.on_connect = lambda client, userdata, flags, rc:
+                          on_connect( client, userdata, flags, rc, channels = self._channels )
         self.on_message = on_message
 
     def start( self, timeout = 60 ):
