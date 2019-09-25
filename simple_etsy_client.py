@@ -22,7 +22,7 @@ def main():
                                          port = 1883
                                       )
     auth = cred.OAuth1Credentials()
-    auth.get_from_file( 'keys.tsv' )
+    auth.get_from_file( 'etsy_keys.tsv' )
 
     args = { 'user_id': '' }
 
