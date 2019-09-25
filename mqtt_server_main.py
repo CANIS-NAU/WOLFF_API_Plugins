@@ -13,7 +13,7 @@ def main():
     args = argp.parse_args()
 
 
-    server = wolff_server.MQTTServer( ip = args.ip, port = args.port, channels = [ 'arnold' ] )
+    server = wolff_server.MQTTServer( ip = args.ip, port = args.port )
 
     server.start()
 
