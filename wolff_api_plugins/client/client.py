@@ -11,11 +11,13 @@ class Client:
     def __init__( self,
                   connection = None,
                   endpoint = None,
-                  credentials = None
+                  credentials = None,
+                  client_id = 1
                 ):
         self._connection  = connection
         self._endpoint    = endpoint
         self._credentials = credentials
+        self._id = client_id
 
     def set_connection( self, server_connection ):
         """
@@ -29,6 +31,12 @@ class Client:
         # set the connection to the passed argument
         pass
 
+    def get_id( self ):
+        return f'client_{self._id}'
+
+    def set_id( self, id ):
+        self._id = id
+    
     def get_connection( self ):
         """
         Get the connection stored by this client. 
@@ -130,6 +138,7 @@ class Client:
             m_args[ 'method' ] = dict()
             m_args[ 'method' ][ 'params' ] = http_method.args_as_dict()
             m_args[ 'method' ][ 'http_method' ] = http_method.get_http_method()
+            m_args[ 'client_id' ] = self.get_id()
 
             ret = self.get_connection().send( Message( m_args ) )
 

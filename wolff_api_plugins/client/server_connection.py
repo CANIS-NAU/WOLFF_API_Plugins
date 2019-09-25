@@ -1,4 +1,5 @@
 from .message import Message as Message
+import paho.mqtt.client as mqtt
 import socket 
 import time
 from numpy import inf as inf
@@ -63,3 +64,95 @@ class TCPServerConnection:
                  # Hint( str( Method ) method socket.sendall() method,
                  #  and remember to encode the mesage
         pass
+
+
+class MQTTServerConnection:
+    def __init__( self, ip = "127.0.0.1",
+                  port = 0,
+                  timeout = 60
+
+                ):
+        self._ip = ip
+        self._port = port
+        self._timeout = timeout
+        self._channels = set()
+        self._received_messages = list()
+        self._connected = False
+            
+        def on_message( client, userdata, msg ):
+            print( "ON MESSAGE!" )
+            self._received_messages.append( ( str( msg.topic ), str( msg.payload ) ) )
+
+        def on_disconnect( client, userdata, flags, rc ):
+            self._connected = False
+
+        def on_connect( client, userdata, flags, rc ):
+            print( "CONNECT" )
+            self._connected = True
+            for item in self.get_channels():
+                print( "Subscribing to: ", item )
+                client.subscribe( item, qos = 1 )
+                
+        self._client = mqtt.Client( client_id = "1", clean_session = False )
+        self.on_message = on_message
+        self.on_connect = on_connect
+        self.on_disconnect = on_disconnect
+
+    def get_channels( self ):
+        return self._channels
+
+    def get_ip( self ):
+        return self._ip
+    
+    def get_port( self ):
+        return self._port
+
+    def get_timeout( self ):
+        return self._timeout
+
+    def get_received_messages( self ):
+        return self._received_messages 
+
+    def check_for_messages( self ):
+
+        ret = self.get_received_messages()
+        self._received_messages = list()
+
+        return ret
+
+    def get_client( self, connect = False ):
+        self._client.on_message = self.on_message
+        self._client.on_connect = self.on_connect
+        self._client.on_disconnect = self.on_disconnect
+
+        if connect:
+            print( "connecting" )
+            self._client.connect( self.get_ip(),
+                                  self.get_port(),
+                                  self.get_timeout()
+                                )
+            self._client.loop_start()
+        return self._client
+
+
+    def subscribe_to( self, topic ):
+        self._channels.add( topic )
+        self.get_client( connect = True )
+
+    def send( self, message ):
+        client = self.get_client( connect = not self._connected )
+        post_topic = f"posts/{message.get_data()[ 'client_id' ]}"
+        resp_topic = f"responses/{message.get_data()[ 'client_id' ]}" 
+
+        print( f"Post topic: {post_topic}." )
+        print( f"Resp topic: {resp_topic}." )
+
+        if resp_topic not in self.get_channels():
+            self.subscribe_to( resp_topic )
+
+        print( 'publishing' )
+        ret = self._client.publish( post_topic, str( message ) )
+        print( "published" )
+
+        return ret.mid
+
