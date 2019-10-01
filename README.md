@@ -1,3 +1,5 @@
 # WOLFF API Plugins
-### To create documentation (HTML):
-```cd doc; make html```
+## Requirements:
+    - paho-mqtt
+    - requests_oauthlib 
+    - An MQTT client such as mosquitto
