@@ -2,7 +2,9 @@ from .message import Message as Message
 import paho.mqtt.client as mqtt
 import socket 
 import time
+import threading
 from numpy import inf as inf
+
 
 class TCPServerConnection:
     """
@@ -67,6 +69,11 @@ class TCPServerConnection:
 
 
 class MQTTServerConnection:
+    """
+    A delay-tolerant connection to an MQTT broker.
+    Clients can send a message to the broker and check 
+    to see if any responses have been sent. 
+    """
     def __init__( self, ip = "127.0.0.1",
                   port = 0,
                   timeout = 60
@@ -77,22 +84,27 @@ class MQTTServerConnection:
         self._timeout = timeout
         self._channels = set()
         self._received_messages = list()
+        self._lock = threading.Lock()
         self._connected = False
             
         def on_message( client, userdata, msg ):
-            print( "ON MESSAGE!" )
+            """
+            Callback used by paho-mqtt on receipt of message.
+            """
+            self._lock.acquire()
             self._received_messages.append( ( str( msg.topic ), str( msg.payload ) ) )
+            self._lock.release()
 
         def on_disconnect( client, userdata, flags, rc ):
             self._connected = False
 
         def on_connect( client, userdata, flags, rc ):
-            print( "CONNECT" )
             self._connected = True
+
             for item in self.get_channels():
-                print( "Subscribing to: ", item )
-                client.subscribe( item, qos = 1 )
+                client.subscribe( item, qos = 1 ) 
                 
+        # client id initialized to 1 for now, we want a better way to identify clients
         self._client = mqtt.Client( client_id = "1", clean_session = False )
         self.on_message = on_message
         self.on_connect = on_connect
@@ -114,19 +126,32 @@ class MQTTServerConnection:
         return self._received_messages 
 
     def check_for_messages( self ):
+        """
+        Check if our message queue has had any items placed into it.
+        Uses this class' mutex to avoid race conditions with the message-watch thread.
+        """
+
+        self._lock.acquire()
 
         ret = self.get_received_messages()
         self._received_messages = list()
 
+        self._lock.release()
+
         return ret
 
     def get_client( self, connect = False ):
+        """
+        Return this class' client, optionally connect 
+        to the MQTT broker
+        If connect is true, a thread will be started that 
+        watches for messages.
+        """
         self._client.on_message = self.on_message
         self._client.on_connect = self.on_connect
         self._client.on_disconnect = self.on_disconnect
 
         if connect:
-            print( "connecting" )
             self._client.connect( self.get_ip(),
                                   self.get_port(),
                                   self.get_timeout()
@@ -140,19 +165,25 @@ class MQTTServerConnection:
         self.get_client( connect = True )
 
     def send( self, message ):
+        """
+        Sends a message to the broker through the client.
+        Subscribes to the topic where the response will be sent. 
+
+        Args:
+          message: The message to send
+        
+        Returns: 
+          status of the attempt to send the message
+        """
+        # connect if we are not already connected
         client = self.get_client( connect = not self._connected )
         post_topic = f"posts/{message.get_data()[ 'client_id' ]}"
         resp_topic = f"responses/{message.get_data()[ 'client_id' ]}" 
 
-        print( f"Post topic: {post_topic}." )
-        print( f"Resp topic: {resp_topic}." )
-
         if resp_topic not in self.get_channels():
             self.subscribe_to( resp_topic )
 
-        print( 'publishing' )
         ret = self._client.publish( post_topic, str( message ) )
-        print( "published" )
 
         return ret.mid
 
