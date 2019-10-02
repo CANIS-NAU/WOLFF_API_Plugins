@@ -3,7 +3,6 @@ import paho.mqtt.client as mqtt
 import socket 
 import time
 import threading
-from numpy import inf as inf
 
 
 class TCPServerConnection:
@@ -25,16 +24,16 @@ class TCPServerConnection:
         Return the (IPv4) IP this connection will 
         bind to when a connection is initialized
         """
-        pass
+        return self._ip
 
     def get_port( self ):
         """
         Return the port this connection will bind to 
         when initiating a connection.
         """
-        pass
+        return self._port
     
-    def send( self, message, timeout = inf ):
+    def send( self, message ):
         """
         Sends an object of type  message 
         to the specified TCP ip address 
@@ -52,21 +51,6 @@ class TCPServerConnection:
 
           # if timeout is not inf set the timeout
             return sock.recv( 4096 ).decode( 'utf-8' )
-          
-          # connect to the server using our socket
-             # send the string representation of the message
-                 # Hint( str() method socket.sendall() method,
-                 #  and remember to encode the mesage
-        # ip address
-          # if timeout is not inf set the timeout
-          
-          # connect to the server using our socket
-             # send the string representation of the message
-             # create a Message and send it
-                 # Hint( str( Method ) method socket.sendall() method,
-                 #  and remember to encode the mesage
-        pass
-
 
 class MQTTServerConnection:
     """
@@ -129,6 +113,10 @@ class MQTTServerConnection:
         """
         Check if our message queue has had any items placed into it.
         Uses this class' mutex to avoid race conditions with the message-watch thread.
+        
+        Note: Calling this method clears the cache of any existing messages
+        Returns:
+          A list of string messages that have been received by the client
         """
 
         self._lock.acquire()
