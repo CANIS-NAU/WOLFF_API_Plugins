@@ -41,20 +41,19 @@ def main():
                                 )
     etsy_client.specialize()
 
+    time.sleep( 10 )
     etsy_client.createListing( quantity = 1, title = "Will this work?",
                                description = "Description of the item.",
                                price = 0.45, who_made = 'i_did', is_supply = True,
                                when_made = 'made_to_order', shipping_template_id = 76575991147
     )
 
-    time.sleep( 10 )
+    time.sleep( 35 ) 
     etsy_client.gubo( user_id = 'ezk6e2q6' )
 
-    time.sleep( 1 )
     # response can take a little bit
-    time.sleep( 35 ) 
     # etsy_client.get_connection().subscribe_to( 'responses/client_1' )
-    # time.sleep( 35 ) 
+    time.sleep( 35 ) 
     result = etsy_client.get_connection().check_for_messages()
     print( result )
 
