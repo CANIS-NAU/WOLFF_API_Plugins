@@ -29,7 +29,7 @@ class Client:
             will be used to send any messages that the client sends.
         """
         # set the connection to the passed argument
-        pass
+        self._connection = server_connection
 
     def get_id( self ):
         return f'client_{self._id}'
@@ -57,14 +57,13 @@ class Client:
         Returns:
            True if the client has a connection, False otherwise.
         """
-        # return whethe the client currently has a connection. 
-        pass
+        return self._connection != None
 
     """
     Set the client's endpoint. 
     """
     def set_endpoint( self, endpoint ):
-        pass
+        self._endpoint = endpoint
 
     """
     Get the endpoint this client is able to 
@@ -75,7 +74,7 @@ class Client:
       The endpoint associated with this client.
     """
     def get_endpoint( self ):
-        pass
+        return self._endpoint
 
     """
     Set this objects credentials.
@@ -84,7 +83,7 @@ class Client:
       credential: The new credential for this object
     """
     def set_credentials( self, credential ):
-        pass
+        self._credentials = credential
 
     """
     Return this object's credentials.
