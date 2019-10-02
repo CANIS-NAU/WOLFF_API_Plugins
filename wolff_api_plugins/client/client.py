@@ -57,6 +57,7 @@ class Client:
         Returns:
            True if the client has a connection, False otherwise.
         """
+        # return whethe the client currently has a connection. 
         return self._connection != None
 
     """
@@ -83,7 +84,7 @@ class Client:
       credential: The new credential for this object
     """
     def set_credentials( self, credential ):
-        self._credentials = credential
+        self._credentials = credentials
 
     """
     Return this object's credentials.
