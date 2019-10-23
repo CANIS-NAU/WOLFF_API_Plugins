@@ -2,6 +2,7 @@ from requests_oauthlib import OAuth1Session
 import socket
 import json
 import paho.mqtt.client as mqtt
+import time
 
 class WOLFFServer:
     """ 
@@ -23,6 +24,9 @@ class WOLFFServer:
 
     def get_port( self ):
         return self.port
+
+    def encode_data( self, data ):
+        return json.dumps( data )
 
     def decode_data( self, data ):
         return json.loads( data.decode( 'utf-8' ) )
