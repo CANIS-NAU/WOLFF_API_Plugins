@@ -141,14 +141,14 @@ class MQTTServer( WOLFFServer ):
             data_dict = self.decode_data( msg.payload )
             topic = str( msg.topic ).split( '/' )
             topic[ 0 ] = 'responses'
-            # topic.append( data_dict[ 'client_id' ] )
 
             # Note: topic is of the form /posts/client_x, where x is the ID for the client
             topic = '/'.join( topic )
 
             result = self.do_request( data_dict )
 
-            self.get_client().publish( topic, result.text, qos = 1 )
+            time.sleep( 10 )
+            self.get_client().publish( topic, msg.payload, qos = 1 )
 
         self.on_connect = lambda client, userdata, flags, rc: \
                           on_connect( client, userdata, flags, rc, channels = self._channels )
