@@ -73,3 +73,20 @@ class FileResource:
         Get the entire path of the resource.
         """
         return get_full_path() + get_file_name()
+
+class OAuth1Resource( Resource ):
+    def __init__( self, resource_id, base_path, resource_name ):
+        """
+        Create a new OAuth1 resource, with resource_id and 
+        a base path.
+        
+        Params:
+          resource_id: The id of this resource. It should be unique.
+          resource_name: The name of the value of the resource. This will 
+                       be the name of the text file.
+        
+          base_path: Base of the path to write files to. 
+                     Files will be written to resource_id/base_path
+        """
+        super().__init__( resource_id, base_path, resource_name )
+
