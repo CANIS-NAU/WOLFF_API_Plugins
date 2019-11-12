@@ -25,3 +25,51 @@ class FileResource:
         self._resource_name = resource_name
 
 
+    def read( self ):
+        """
+        Read the data for a resource from its file. 
+        The complete filepath is constructed from 
+        id, base_path, and resource_name.
+        
+        Returns:
+           the lines from the resource file in a list.
+        """
+        full_path = get_full_file_path()
+
+        open_f = open( full_path )
+        out_data = list( map( strip, open_f.readlines().split( '\n' ) ) )
+        open_f.close()
+        
+        return out_data
+
+    def write( self, str_data ):
+        pass
+
+    def get_file_name( self ):
+        """
+        Get the filename for the resource, 
+        without any of the leading path information.
+
+        Returns:
+          the name of the file this resource is associated with
+        """
+        return self._resource_name
+    
+    def get_full_path( self, include_trailing = True ):
+        """
+        Get the full path of the location of the resource.
+        Note:
+          This method does not return the complete path of the resource,
+          only the path of its location.
+        """
+        trailing = ""
+        if include_trailing:
+            trailing = "/"
+
+        return f'{self._id}/{self._path}{trailing}'
+
+    def get_full_file_path( self ):
+        """
+        Get the entire path of the resource.
+        """
+        return get_full_path() + get_file_name()
