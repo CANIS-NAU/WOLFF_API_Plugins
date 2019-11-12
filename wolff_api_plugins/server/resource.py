@@ -107,3 +107,21 @@ class OAuth1Resource( Resource ):
             output[ key ] = value
         return output
 
+    def write( self, values, override = False ):
+        """
+        Write a dictionary of OAuth1 key/value pairs to this resource.
+        
+        Throws:
+          OSError if override is false and the specified file already exists
+        Params:
+           values: a dictionary of key/value pairs necessary for oauth authentication
+           override: include if you want an existing file with this resources'
+                     path to be overwritten. If this flag is not True,
+                     an OSError will be raised upon existing file.
+        """
+        if not( override ) and os.path.exists( self.get_full_file_path() ):
+            raise OSError( f"File {self.get_full_file_path()} exists!" )
+
+        with open( self.get_full_file_path(), 'w' ) as out_file:
+            for key, value in values.items():
+                out_file.write( f'{key}\t{value}\n' )
