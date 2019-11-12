@@ -90,3 +90,20 @@ class OAuth1Resource( Resource ):
         """
         super().__init__( resource_id, base_path, resource_name )
 
+    def read( self ):
+        """
+        Read the value for the resouce from a file.
+        Returns:
+          A dictionary containing the necessary key/value pairs for 
+          OAuth1 identification.
+        """
+        output = dict()
+        
+        file_lines = super().read()
+
+        for line in file_lines:
+            key, value  = line.split( '\t' )
+
+            output[ key ] = value
+        return output
+
