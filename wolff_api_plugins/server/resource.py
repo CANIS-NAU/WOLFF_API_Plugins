@@ -7,7 +7,7 @@ class FileResource:
     This class provides methods for creation, editing, etc. of 
     FileResources.
     """
-    def __init__( self, resource_id, base_path, resource_name ):
+    def __init__( self, resource_id, base_path, resource_name = "resource.txt" ):
         """
         Create a new FileResource, with resource_id and 
         a base path.
@@ -75,20 +75,18 @@ class FileResource:
         return get_full_path() + get_file_name()
 
 class OAuth1Resource( Resource ):
-    def __init__( self, resource_id, base_path, resource_name ):
+    def __init__( self, resource_id, base_path ):
         """
         Create a new OAuth1 resource, with resource_id and 
         a base path.
         
         Params:
           resource_id: The id of this resource. It should be unique.
-          resource_name: The name of the value of the resource. This will 
-                       be the name of the text file.
         
           base_path: Base of the path to write files to. 
                      Files will be written to resource_id/base_path
         """
-        super().__init__( resource_id, base_path, resource_name )
+        super().__init__( resource_id, base_path, "keys.tsv" )
 
     def read( self ):
         """
@@ -125,3 +123,8 @@ class OAuth1Resource( Resource ):
         with open( self.get_full_file_path(), 'w' ) as out_file:
             for key, value in values.items():
                 out_file.write( f'{key}\t{value}\n' )
+
+class ResourceFactory:
+    def get( str_type ):
+        if str_type == "oauth1":
+            return OAuth1Resource
