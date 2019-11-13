@@ -33,3 +33,11 @@ class Client:
     def get_resource( self, service, resource ):
         return self._resources[ '/'.join( [ service, resource ] ) ]
 
+if __name__ == '__main__':
+
+    cli = Client( 'client_1', [ ( 'etsy', 'oauth1' ) ] )
+
+    print( cli.get_id() )
+    etsy_resource = cli.get_resource( 'etsy', 'oauth1' )
+    data = etsy_resource.get_data().copy()
+    etsy_resource.write( data, override = True )
