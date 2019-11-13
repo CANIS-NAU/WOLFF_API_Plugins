@@ -56,3 +56,14 @@ class ClientManager:
 
         self.register_existing_client( new_client )
 
+if __name__ == '__main__':
+    cli = ClientManager( 'clients' )
+    data = cli.get_client_by_id( 'client_1' ) \
+           .get_resource( 'etsy', 'oauth1' ) \
+           .get_data()
+
+    print( data )
+    cli.register_client( [ ( 'etsy', 'oauth1', data ) ] )
+    cli.register_client( [ ( 'etsy', 'oauth1', data ) ] )
+    cli.register_client( [ ( 'etsy', 'oauth1', data ) ] )
+    cli.register_client( [ ( 'etsy', 'oauth1', data ) ] )
