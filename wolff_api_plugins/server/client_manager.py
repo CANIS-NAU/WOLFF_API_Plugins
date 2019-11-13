@@ -34,6 +34,9 @@ class ClientManager:
                                "already exists!"
                             )
         
+    def register_existing_client( self, new_client ):
+        self.check_existing_client( new_client.get_id() )
+        self._clients[ new_client.get_id() ] = new_client
 
 
 
