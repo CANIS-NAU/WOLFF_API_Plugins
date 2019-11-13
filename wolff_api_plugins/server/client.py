@@ -1,26 +1,35 @@
+#!/usr/bin/env python3 
+
 import resource
 
 class Client:
-    def __init__( self, cli_id, resources ):
+    def __init__( self, cli_id, resources, base_path = '.' ):
         self._id = cli_id
-        self._resouces_raw = resources
-        self._resources = get_resources( resources )
+        self._resouces_raw = resources.copy()
+        self._resources = self.instantiate_resources( resources, base_path )
 
-    def get_resources( self, resources ):
-        output = list()
+    def instantiate_resources( self, resources, base ):
+        output = dict()
+
+        get_val = lambda x: x[ 2 ] if len( x ) == 3 else None
 
         for res in resources:
-            resource_type = get_resource( res )
-            new_resource = resource_type( self.get_id(),
-                                          resource[ 0 ],
-                                          resources[ 1 ]
+            res_trim = res[ 0 : 2 ]
+            resource_type = self._get_resource( res_trim )
+            new_resource = resource_type( self.get_id(), 
+                                          '/'.join( res_trim ),
+                                          root_path = base,
+                                          values = get_val( res )
                                         )
-            output.append( new_resource )
+            output[ '/'.join( res_trim ) ] = new_resource
         return output
 
-    def get_resource( resource ):
-        return resource.ResourceFactory.get( resource[ 0 ] )
+    def _get_resource( self, to_get ):
+        return resource.ResourceFactory.get( to_get[ 1 ] )
 
     def get_id( self ):
         return self._id
-        
+
+    def get_resource( self, service, resource ):
+        return self._resources[ '/'.join( [ service, resource ] ) ]
+
