@@ -1,5 +1,6 @@
 import sys
 import os
+import pathlib
 
 class FileResource:
     """
@@ -7,7 +8,9 @@ class FileResource:
     This class provides methods for creation, editing, etc. of 
     FileResources.
     """
-    def __init__( self, resource_id, base_path, resource_name = "resource.txt" ):
+    def __init__( self, resource_id, base_path, resource_name = "resource.txt",
+                  root_path = '.'
+                ):
         """
         Create a new FileResource, with resource_id and 
         a base path.
@@ -22,9 +25,14 @@ class FileResource:
         """
         self._id   = resource_id
         self._path = base_path
+        self._root = root_path
         self._resource_name = resource_name
 
+        self._create_dir( f'{root_path}/{resource_id}/{base_path}' )
 
+    def _create_dir( self, path ):
+        pathlib.Path( path ).mkdir( parents = True, exist_ok = True )
+                
     def read( self ):
         """
         Read the data for a resource from its file. 
@@ -34,10 +42,10 @@ class FileResource:
         Returns:
            the lines from the resource file in a list.
         """
-        full_path = get_full_file_path()
+        full_path = self.get_full_file_path()
 
         open_f = open( full_path )
-        out_data = list( map( strip, open_f.readlines().split( '\n' ) ) )
+        out_data = list( map( str.strip, open_f.readlines() ) )
         open_f.close()
         
         return out_data
@@ -66,16 +74,18 @@ class FileResource:
         if include_trailing:
             trailing = "/"
 
-        return f'{self._id}/{self._path}{trailing}'
+        return f'{self._root}/{self._id}/{self._path}{trailing}'
 
     def get_full_file_path( self ):
         """
         Get the entire path of the resource.
         """
-        return get_full_path() + get_file_name()
+        return self.get_full_path() + self.get_file_name()
 
-class OAuth1Resource( Resource ):
-    def __init__( self, resource_id, base_path ):
+    def __eq__( self, other ):
+        return self.__class__ == other.__class__
+
+
         """
         Create a new OAuth1 resource, with resource_id and 
         a base path.
@@ -86,7 +96,11 @@ class OAuth1Resource( Resource ):
           base_path: Base of the path to write files to. 
                      Files will be written to resource_id/base_path
         """
-        super().__init__( resource_id, base_path, "keys.tsv" )
+        super().__init__( resource_id, base_path, "keys.tsv",
+                          root_path = root_path
+                        )
+
+        self._data = dict()
 
     def read( self ):
         """
@@ -104,6 +118,11 @@ class OAuth1Resource( Resource ):
 
             output[ key ] = value
         return output
+
+    def get_data( self ):
+        if not self._data:
+            self._data = self.read()
+        return self._data
 
     def write( self, values, override = False ):
         """
