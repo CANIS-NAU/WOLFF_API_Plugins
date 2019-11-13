@@ -9,6 +9,7 @@ class FileResource:
     FileResources.
     """
     def __init__( self, resource_id, base_path, resource_name = "resource.txt",
+                  values = None,
                   root_path = '.'
                 ):
         """
@@ -29,6 +30,10 @@ class FileResource:
         self._resource_name = resource_name
 
         self._create_dir( f'{root_path}/{resource_id}/{base_path}' )
+
+        if values:
+            self.write( values )
+
 
     def _create_dir( self, path ):
         pathlib.Path( path ).mkdir( parents = True, exist_ok = True )
@@ -85,7 +90,13 @@ class FileResource:
     def __eq__( self, other ):
         return self.__class__ == other.__class__
 
+    def __ne__( self, other ):
+        return not ( self == other )
 
+class OAuth1Resource( FileResource ):
+    def __init__( self, resource_id, base_path, root_path = '.',
+                  values = None
+                ):
         """
         Create a new OAuth1 resource, with resource_id and 
         a base path.
@@ -101,6 +112,10 @@ class FileResource:
                         )
 
         self._data = dict()
+
+        if values:
+            self.write( values )
+            self._data = values
 
     def read( self ):
         """
@@ -142,8 +157,14 @@ class FileResource:
         with open( self.get_full_file_path(), 'w' ) as out_file:
             for key, value in values.items():
                 out_file.write( f'{key}\t{value}\n' )
+        self._data = values.copy()
+
+    def __hash__( self ):
+        return hash( "oauth1" )
+
 
 class ResourceFactory:
     def get( str_type ):
         if str_type == "oauth1":
             return OAuth1Resource
+        return None
