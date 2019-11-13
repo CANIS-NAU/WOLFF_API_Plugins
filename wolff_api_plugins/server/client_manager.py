@@ -43,6 +43,16 @@ class ClientManager:
         client_ids = list( self._clients.keys() )
         return [ get_num( cli_id ) for cli_id in client_ids ]
 
+    def register_client( self, resources ):
+        client_num = max( self._get_client_nums() ) + 1
 
+        new_cl_id = f'client_{client_num}'
 
+        self.check_existing_client( new_cl_id )
+
+        new_client = Client( new_cl_id, resources,
+                             base_path = self._dir
+                           )
+
+        self.register_existing_client( new_client )
 
