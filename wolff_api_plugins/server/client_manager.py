@@ -28,6 +28,12 @@ class ClientManager:
     def get_client_by_id( self, client_id ):
         return self._clients[ client_id ]
 
+    def check_existing_client( self, client_id ):
+        if client_id in self._clients:
+            raise ValueError( f"Client with id {new_client.get_id()}"
+                               "already exists!"
+                            )
+        
 
 
 
