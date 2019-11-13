@@ -1,10 +1,12 @@
+import os
 import resource
-import client
+from client import Client
 
 class ClientManager:
     def __init__( self, client_dir ):
         self._dir = client_dir
-        self._clients = _clients_from_dir( client_dir )
+        self._clients = dict()
+        self._clients_from_dir( client_dir )
 
     def _clients_from_dir( self, search_dir ):
         clients = dict()
@@ -23,8 +25,8 @@ class ClientManager:
             new_client = Client( client, resources, base_path = self._dir )
             self._clients[ new_client.get_id() ] = new_client
 
-    def client_from_dir( path ):
-        client_details = path.split( '/' )
+    def get_client_by_id( self, client_id ):
+        return self._clients[ client_id ]
 
 
 
