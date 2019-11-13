@@ -38,6 +38,10 @@ class ClientManager:
         self.check_existing_client( new_client.get_id() )
         self._clients[ new_client.get_id() ] = new_client
 
+    def _get_client_nums( self ):
+        get_num = lambda x: int( x.split( '_' )[ 1 ] )
+        client_ids = list( self._clients.keys() )
+        return [ get_num( cli_id ) for cli_id in client_ids ]
 
 
 
