@@ -22,10 +22,22 @@ class EtsyDecoder:
             return value in cls._value2member_map_
 
     def __init__( self ):
-        self.title_map       = { 0x00: '' }
-        self.description_map = { 0x00: '' }
-        self.who_made_map    = { 0x00: '' }
-        self.when_made_map   = { 0x00: '' }
+        self.title_map       = { 0x01: 'title_1' }
+        self.description_map = { 0x02: 'desc_1' }
+        self.who_made_map    = { 0x01: 'i_did',
+                                 0x02: 'collective',
+                                 0x03: 'someone_else'
+                               }
+        self.when_made_map   = { 0x01: 'made_to_order',
+                                 0x02: '2010_2019',
+                                 0x03: '2000_2009',
+                                 0x04: 'before_2000',
+                                 0x05: '1990s',
+                                 0x06: '1980s',
+                                 0x07: '1970s',
+                                 0x08: '1960s'
+                               }
+
 
     def is_etsy_message( self, message ):
         return message[ 0 ] in EtsyDecoder.Services
@@ -76,7 +88,7 @@ class EtsyDecoder:
         who_made = message[ 7 ] >> 4
         output[ 'who_made' ] = self.who_made_map[ who_made ]
 
-        when_made_mask = 0b00001110
+        when_made_mask = 0b01110000
         when_made = ( message[ 7 ] & when_made_mask ) >> 1
         output[ 'when_made' ] = self.when_made_map[ when_made ]
 
