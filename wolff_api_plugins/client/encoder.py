@@ -58,16 +58,16 @@ class EtsyEncoder:
         assert( price_integral < 4095 )
         assert( 0 <= price_fraction and price_fraction < 16 )
 
-        integral_left_4digits = price_integral % 16
-        integral_right_8digits = price_integral // 16
+        integral_left_8digits = price_integral // 16
+        integral_right_4digits = price_integral % 16
         price_fraction_digits = price_fraction
 
-        payload[ 5 ] |= integral_left_4digits
+        payload[ 5 ] |= integral_left_8digits
 
         integral_mask = 0b11110000
         fraction_mask = 0b00001111
 
-        payload[ 6 ] |= ( integral_mask & ( integral_right_8digits << 4 ) ) \
+        payload[ 6 ] |= ( integral_mask & ( integral_right_4digits << 4 ) ) \
                        | ( fraction_mask & price_fraction_digits )
 
         # who_made, when_made, is_supply

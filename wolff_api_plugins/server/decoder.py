@@ -60,7 +60,7 @@ class EtsyDecoder:
         fractional_byte = price_bytes[ 1 ] & 0x0F
         fractional_price = int( fractional_byte ) / 100.0
 
-        integral_second_half = price_bytes[ 1 ] & 0xF0
+        integral_second_half = ( price_bytes[ 1 ] & 0xF0 ) >> 4
 
         integral_price = ( int( integral_byte ) * 16 ) + int( integral_second_half )
 
