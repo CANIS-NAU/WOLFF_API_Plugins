@@ -73,8 +73,12 @@ class EtsyEncoder:
         # who_made, when_made, is_supply
         wm_whm_is_byte = 0x00
         wm_whm_is_byte = 0b10000000 & ( create_listing_data[ 'is_supply' ] << 7 )
-        wm_whm_is_byte |= self.when_made_map[ create_listing_data[ 'when_made' ] ]
-        wm_whm_is_byte |= self.who_made_map[ create_listing_data[ 'who_made' ] ]
+
+        when_made = self.when_made_map[ create_listing_data[ 'when_made' ] ]
+        wm_whm_is_byte |= ( ( when_made << 4 ) & 0b01110000 )
+
+        who_made = self.who_made_map[ create_listing_data[ 'who_made' ] ]
+        wm_whm_is_byte |=  who_made
 
         payload[ 7 ] |= wm_whm_is_byte
 
