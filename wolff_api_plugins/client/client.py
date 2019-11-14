@@ -12,12 +12,14 @@ class Client:
                   connection = None,
                   endpoint = None,
                   credentials = None,
-                  client_id = 1
+                  client_id = 1,
+                  message_type = Message
                 ):
         self._connection  = connection
         self._endpoint    = endpoint
         self._credentials = credentials
         self._id = client_id
+        self._message_type = message
 
     def set_connection( self, server_connection ):
         """
@@ -140,7 +142,7 @@ class Client:
             m_args[ 'method' ][ 'http_method' ] = http_method.get_http_method()
             m_args[ 'client_id' ] = self.get_id()
 
-            ret = self.get_connection().send( Message( m_args ) )
+            ret = self.get_connection().send( self._message_type( m_args ) )
 
             http_method.clear_args()
 
