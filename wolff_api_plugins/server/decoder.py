@@ -17,6 +17,9 @@ class EtsyDecoder:
     class Services( Enum ):
         CREATE_LISTING = 1
 
-    def __init__( self ):
-        pass
+        @classmethod
+        def has_value( cls, value ):
+            return value in cls._value2member_map_
+
+    def is_etsy_message( self, message ):
 
