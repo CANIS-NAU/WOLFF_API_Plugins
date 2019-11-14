@@ -14,5 +14,9 @@ class DecoderFactory:
             return EtsyDecoder()
 
 class EtsyDecoder:
+    class Services( Enum ):
+        CREATE_LISTING = 1
+
     def __init__( self ):
         pass
+
