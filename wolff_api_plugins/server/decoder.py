@@ -21,6 +21,12 @@ class EtsyDecoder:
         def has_value( cls, value ):
             return value in cls._value2member_map_
 
+    def __init__( self ):
+        self.title_map       = { 0x00: '' }
+        self.description_map = { 0x00: '' }
+        self.who_made_map    = { 0x00: '' }
+        self.when_made_map   = { 0x00: '' }
+
     def is_etsy_message( self, message ):
 
     def get_service_decoder( self, message ):
