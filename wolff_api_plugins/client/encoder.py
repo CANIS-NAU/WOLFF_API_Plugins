@@ -84,19 +84,19 @@ class EtsyEncoder:
 
         shipping_template_id = int( create_listing_data[ 'shipping_template_id' ] )
 
-        stp1 = shipping_template_id % 256
-        shipping_template_id //= 256
-
-        stp2 = shipping_template_id % 256
-        shipping_template_id //= 256
-
-        stp3 = shipping_template_id % 256
+        stp5 = shipping_template_id % 256
         shipping_template_id //= 256
 
         stp4 = shipping_template_id % 256
         shipping_template_id //= 256
 
-        stp5 = shipping_template_id
+        stp3 = shipping_template_id % 256
+        shipping_template_id //= 256
+
+        stp2 = shipping_template_id % 256
+        shipping_template_id //= 256
+
+        stp1 = shipping_template_id
 
         payload[ 8 ]  = stp1
         payload[ 9 ]  = stp2

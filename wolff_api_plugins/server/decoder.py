@@ -96,11 +96,11 @@ class EtsyDecoder:
         output[ 'is_supply' ] = is_supply
 
         # stp = shipping_template_part
-        stp1 = int( message[ 8 ] )
-        stp2 = int( message[ 9 ] )
-        stp3 = int( message[ 10 ] )
-        stp4 = int( message[ 11 ] )
-        stp5 = int( message[ 12 ] )
+        stp1 = message[ 8 ]
+        stp2 = message[ 9 ]
+        stp3 = message[ 10 ]
+        stp4 = message[ 11 ]
+        stp5 = message[ 12 ]
 
         shipping_template_id = ( stp1 * ( 256 ** 4 ) ) + \
                                ( stp2 * ( 256 ** 3 ) ) + \
