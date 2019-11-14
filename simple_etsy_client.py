@@ -3,6 +3,7 @@ import wolff_api_plugins.client.api_hook as hook
 import wolff_api_plugins.client.client as client
 import wolff_api_plugins.client.server_connection as conn
 import wolff_api_plugins.client.oauth_credentials as cred
+import wolff_api_plugins.client.message
 import time
 
 def main():
@@ -37,13 +38,14 @@ def main():
 
 
     etsy_client = client.Client( connection = connect, endpoint = etsy_hook,
-                                 credentials = auth
+                                 credentials = auth,
+                                 message_type = message.EtsyMessage
                                 )
     etsy_client.specialize()
 
     time.sleep( 10 )
-    etsy_client.createListing( quantity = 1, title = "Will this work?",
-                               description = "Description of the item.",
+    etsy_client.createListing( quantity = 1, title = "title_1",
+                               description = "desc_1",
                                price = 0.45, who_made = 'i_did', is_supply = True,
                                when_made = 'made_to_order', shipping_template_id = 76575991147
     )
