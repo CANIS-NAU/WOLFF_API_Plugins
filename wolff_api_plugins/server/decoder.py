@@ -23,3 +23,8 @@ class EtsyDecoder:
 
     def is_etsy_message( self, message ):
 
+    def get_service_decoder( self, message ):
+        if message[ 1 ] == EtsyDecoder.Services.CREATE_LISTING:
+            return self._decode_create_listing_message
+
+
