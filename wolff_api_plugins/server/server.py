@@ -3,6 +3,8 @@ import socket
 import json
 import paho.mqtt.client as mqtt
 import time
+import client_manager
+import decoder
 
 class WOLFFServer:
     """ 
@@ -70,6 +72,8 @@ class WOLFFServer:
             # listen
             sock.listen() 
 
+            decoder_factory = decoder.DecoderFactory()
+
 
             while True:
                 # accept a connection
@@ -79,12 +83,12 @@ class WOLFFServer:
                     while True:
 
                         data = conn.recv( 4096 )
+                        decoder = decoder_factory.get_decoder( data )
 
                         if not data:
                             break
 
-                        # get the method name from the URL 
-                        data_dict = decode_data( data )
+                        data_dict = decoder.decode( data )
 
                         print( data_dict )
                         result = self.do_request( data_dict )
@@ -268,6 +272,7 @@ class WOLFFNodeProxy( MQTTServer ):
 
         self.get_client().loop_start()
 
+        client_manager = client_manager.ClientManager( 'clients' )
 
         with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
             # bind to the socket 
@@ -292,5 +297,7 @@ class WOLFFNodeProxy( MQTTServer ):
                         # get the method name from the URL 
                         data_dict = self.decode_data( data )
                         topic = f"posts/{ data_dict[ 'client_id' ] }"
+                        auth = client_manager.get_client_by_id( data_dict[ 'client_id' ] )
+
                         result = self.do_request( data_dict, topic )
                         # conn.sendall( result.content )
