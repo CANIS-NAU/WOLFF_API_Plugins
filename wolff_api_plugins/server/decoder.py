@@ -34,6 +34,29 @@ class EtsyDecoder:
         if message[ 1 ] == EtsyDecoder.Services.CREATE_LISTING:
             return self._decode_create_listing_message
 
+    def decode( self, message ):
+        assert( self.is_etsy_message( message ) )
+
+        decode_fn = self.get_service_decoder( message )
+
+        return decode_fn( message )
+
+    def _get_price( self, price_bytes ):
+        integral_byte   = price_bytes[ 0 ]
+
+        # mask off first 4 bytes
+        fractional_byte = price_bytes[ 1 ] & 0x0F
+        fractional_price = int( fractional_byte ) / 100.0
+
+        integral_second_half = price_bytes[ 1 ] & 0xF0
+
+        integral_price = ( int( integral_byte ) * 16 ) + int( integral_second_half )
+
+        price = integral_price + fractional_price
+
+        return price
+
+
 
     def _decode_create_listing_message( self, message ):
         output = dict()
