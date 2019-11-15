@@ -5,12 +5,13 @@ class Applications( Enum ):
 
 class DecoderFactory:
     def get_decoder( self, message ):
-        application = self.get_service( message )
+        decoder = self.get_service( message )
+        return decoder
 
     def get_service( self, message ):
         application = message[ 0 ]
 
-        if application == Aplications.ETSY:
+        if application == Applications.ETSY.value:
             return EtsyDecoder()
 
 class EtsyDecoder:
@@ -40,10 +41,10 @@ class EtsyDecoder:
 
 
     def is_etsy_message( self, message ):
-        return message[ 0 ] in EtsyDecoder.Services
+        return EtsyDecoder.Services.has_value( message[ 0 ] )
 
     def get_service_decoder( self, message ):
-        if message[ 1 ] == EtsyDecoder.Services.CREATE_LISTING:
+        if message[ 1 ] == EtsyDecoder.Services.CREATE_LISTING.value:
             return self._decode_create_listing_message
 
     def decode( self, message ):
@@ -85,11 +86,11 @@ class EtsyDecoder:
         price = self._get_price( message[ 5:7 ] )
         output[ 'price' ] = price
 
-        who_made = message[ 7 ] >> 4
+        who_made = message[ 7 ] & 0b00001111
         output[ 'who_made' ] = self.who_made_map[ who_made ]
 
         when_made_mask = 0b01110000
-        when_made = ( message[ 7 ] & when_made_mask ) >> 1
+        when_made = ( message[ 7 ] & when_made_mask ) >> 4
         output[ 'when_made' ] = self.when_made_map[ when_made ]
 
         is_supply = ( message[ 7 ] & 0b10000000 ) >> 7
