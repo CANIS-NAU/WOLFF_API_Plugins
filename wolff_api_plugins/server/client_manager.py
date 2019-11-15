@@ -1,6 +1,6 @@
 import os
 import resource
-from client import Client
+from . client import Client
 
 class ClientManager:
     def __init__( self, client_dir ):
