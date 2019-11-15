@@ -28,12 +28,22 @@ class FileResource:
         self._path = base_path
         self._root = root_path
         self._resource_name = resource_name
+        self._data = None
 
         self._create_dir( f'{root_path}/{resource_id}/{base_path}' )
 
         if values:
             self.write( values )
 
+    def contains( self, val ):
+        my_vals = self.get_data()
+
+        return val in my_vals 
+
+    def get_data( self ):
+        if not self._data:
+            self._data = self.read()
+        return self._data
 
     def _create_dir( self, path ):
         pathlib.Path( path ).mkdir( parents = True, exist_ok = True )
@@ -134,11 +144,6 @@ class OAuth1Resource( FileResource ):
             output[ key ] = value
         return output
 
-    def get_data( self ):
-        if not self._data:
-            self._data = self.read()
-        return self._data
-
     def write( self, values, override = False ):
         """
         Write a dictionary of OAuth1 key/value pairs to this resource.
@@ -162,9 +167,45 @@ class OAuth1Resource( FileResource ):
     def __hash__( self ):
         return hash( "oauth1" )
 
+class ShippingTemplateIdResource( FileResource ):
+    def __init__( self, resource_id, base_path, root_path = '.',
+                  values = None
+                ):
+        super().__init__( resource_id, base_path, "shipping_template_id.txt",
+                          root_path = root_path
+                        )
 
+        self._data = dict()
+
+        if values:
+            self.write( values )
+            self._data = values
+
+    def write( self, values, override = False ):
+        if not( override ) and os.path.exists( self.get_full_file_path() ):
+            raise OSError( f"File {self.get_full_file_path()} exists!" )
+
+        with open( self.get_full_file_path(), 'w' ) as of:
+            for val in values:
+                of.write( f'{val}\n' )
+
+    def read( self ):
+        output = set()
+
+        with open( self.get_full_file_path(), 'r' ) as of:
+            for line in of:
+                stripped = line.strip()
+                output.add( stripped )
+        return output
+    
+
+    def __hash__( self ):
+        return hash( "shipping_template_id" )
+            
 class ResourceFactory:
     def get( str_type ):
         if str_type == "oauth1":
             return OAuth1Resource
+        if str_type == "shipping_template_id":
+            return ShippingTemplateIdResource
         return None
