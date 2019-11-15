@@ -1,6 +1,6 @@
 #!/usr/bin/env python3 
 
-import resource
+from . resource import *
 
 class Client:
     def __init__( self, cli_id, resources, base_path = '.' ):
@@ -25,7 +25,7 @@ class Client:
         return output
 
     def _get_resource( self, to_get ):
-        return resource.ResourceFactory.get( to_get[ 1 ] )
+        return ResourceFactory.get( to_get[ 1 ] )
 
     def get_id( self ):
         return self._id
