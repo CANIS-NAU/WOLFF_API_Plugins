@@ -1,5 +1,5 @@
 import json
-import encoder
+from . import encoder
 
 """
 Represents a message that can be sent from a client to a server (and vice-versa).
@@ -25,6 +25,9 @@ class Message:
 
     def __str__( self ):
         return json.dumps( self._data )
+
+    def encode( self ):
+        return str( self ).encode()
         
 
 
@@ -34,5 +37,7 @@ class EtsyMessage( Message ):
         self._encoder = encoder.EtsyEncoder()
 
     def __str__( self ):
-        return self._encoder.encode( self.get_data() )
+        return self.get_data()
 
+    def encode( self ):
+        return self._encoder.encode( self.get_data() )
