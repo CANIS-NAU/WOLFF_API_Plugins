@@ -1,10 +1,10 @@
 import re
 
 class APIHook:
-    def __init__( self, base_url = "",
+    def __init__( self, service = "",
                   methods = None
                 ):
-        self.base_url = base_url
+        self.service = service
         self.methods = methods if methods else list()
 
     def get_methods( self ):
@@ -16,14 +16,15 @@ class APIHook:
     def add_methods( self, methods ):
         self.methods += methods
 
-    def get_url( self ):
-        return self.base_url
+    def get_service( self ):
+        return self.service
 
-    def set_url( self, url ):
-        self.base_url = url + '/'
+    def set_service( self, service ):
+        self.service = service + '/'
 
-    def get_complete_url( self, method, substitute = False ):
-        return f'{self.get_url()}/{method.get_uri( substitute = substitute )}/'
+    # deprecated with client/server changes
+    # def get_complete_url( self, method, substitute = False ):
+    #     return f'{self.get_url()}/{method.get_uri( substitute = substitute )}/'
 
 class APIMethod:
     """
@@ -33,11 +34,12 @@ class APIMethod:
     a set of arguments that are included 
     in the call of an API Method.
     """
-    def __init__( self, uri = "", args = None, http_method = "", name = "" ):
+    def __init__( self, method = "", args = None, http_method = "", name = "", uri = "" ):
         self.uri = uri
         self.args = args if args else dict()
         self.http_method = http_method
         self.name = name
+        self.method = method
 
         self.substitutable_args = set()
 
@@ -46,6 +48,12 @@ class APIMethod:
         # param is captured
         self.uri_re = re.compile( ":((?:[a-zA-Z]|_)+)" )
 
+    def get_method( self ):
+        return self.method 
+
+    def set_method( self, new_method ):
+        self.method = method
+        
     def set_parameter_re( self, new_re ):
         self.uri_re = new_re
 
