@@ -4,7 +4,8 @@ class APIMap:
     def __init__( self ):
         self.api_map = { "etsy": { 'base_url': 'https://openapi.etsy.com/v2',
                                    'create_listing': { 'uri': 'listings',
-                                                       'http_method': 'post'
+                                                       'http_method': 'post',
+                                                       'service_identifier': 'shipping_template_id'
                                                      },
                                    'auth_type': "oauth1"
                                   }
@@ -26,3 +27,6 @@ class APIMap:
 
     def get_auth_type( self, service ):
         return self.api_map[ service ][ 'auth_type' ]
+
+    def get_service_identifier( self, service, method ):
+        return self.api_map[ service ][ method ][ 'service_identifier' ]
