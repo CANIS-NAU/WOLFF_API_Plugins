@@ -47,7 +47,7 @@ class TCPServerConnection:
         with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
             sock.connect( ( self._ip, self._port ) )
 
-            sock.sendall( str( message ).encode() )
+            sock.sendall( message.encode()  )
 
           # if timeout is not inf set the timeout
             return sock.recv( 4096 ).decode( 'utf-8' )
@@ -165,13 +165,15 @@ class MQTTServerConnection:
         """
         # connect if we are not already connected
         client = self.get_client( connect = not self._connected )
-        post_topic = f"posts/{message.get_data()[ 'client_id' ]}"
-        resp_topic = f"responses/{message.get_data()[ 'client_id' ]}" 
+        service_topic = f"{message.get_data()[ 'service' ]}/" \
+                        f"{message.get_data()[ 'name']}"
+
+        post_topic = f"posts/{service_topic}"
+        resp_topic = f"responses/{service_topic}/{client.get_id()}" 
 
         if resp_topic not in self.get_channels():
             self.subscribe_to( resp_topic )
 
-        ret = self._client.publish( post_topic, str( message ) )
-
+        ret = self._client.publish( post_topic, message.encode() )
         return ret.mid
 
