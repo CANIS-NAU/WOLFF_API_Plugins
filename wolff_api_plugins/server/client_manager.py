@@ -33,7 +33,26 @@ class ClientManager:
             raise ValueError( f"Client with id {new_client.get_id()}"
                                "already exists!"
                             )
+
+    def get_client_by_service_identifier( self, service,
+                                          identifier,
+                                          identifier_value
+                                        ):
+        identifier_value = str( identifier_value )
+        for client in self.get_clients():
+            try:
+                result = client.get_resource( service, identifier ) \
+                               .contains( identifier_value )
+                if result:
+                    return client
+
+            # client doesn't have this service
+            except:
+                pass
         
+    def get_clients( self ):
+        return self._clients.values()
+
     def register_existing_client( self, new_client ):
         self.check_existing_client( new_client.get_id() )
         self._clients[ new_client.get_id() ] = new_client
