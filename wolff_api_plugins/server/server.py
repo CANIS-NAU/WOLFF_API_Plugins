@@ -3,8 +3,9 @@ import socket
 import json
 import paho.mqtt.client as mqtt
 import time
-import client_manager
-import decoder
+from . client_manager import ClientManager
+from . decoder import *
+from . api_map import *
 
 class WOLFFServer:
     """ 
@@ -31,7 +32,10 @@ class WOLFFServer:
         return json.dumps( data )
 
     def decode_data( self, data ):
-        return json.loads( data.decode( 'utf-8' ) )
+        decoder_factory = DecoderFactory()
+        decoder = decoder_factory.get_decoder( data )
+        data_dict = decoder.decode( data )
+        return data_dict 
 
     def do_request( self, data_dict ):
         """
@@ -57,7 +61,7 @@ class WOLFFServer:
         if data_dict[ 'method' ][ 'http_method' ] == 'get':
             result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ] )
         else:
-            result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ], data = data_dict[ 'method' ][ 'params' ] )
+            result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ], data = data_dict[ 'message' ] )
         return result
 
     def start( self ):
@@ -72,8 +76,8 @@ class WOLFFServer:
             # listen
             sock.listen() 
 
-            decoder_factory = decoder.DecoderFactory()
-
+            client_manager = ClientManager( 'clients' )
+            api_map = APIMap()
 
             while True:
                 # accept a connection
@@ -83,12 +87,26 @@ class WOLFFServer:
                     while True:
 
                         data = conn.recv( 4096 )
-                        decoder = decoder_factory.get_decoder( data )
 
                         if not data:
                             break
 
-                        data_dict = decoder.decode( data )
+                        data_dict = self.decode_data( data )
+                        data_dict[ 'method' ] = dict()
+
+                        service, method = data_dict[ 'api_details' ]
+
+                        data_dict[ 'url' ] = api_map.get_complete_url( service, method )
+                        http_method =  api_map.get_http_method( service, method )
+                        auth_type = api_map.get_auth_type( service )
+
+                        data_dict[ 'method' ][ 'http_method' ] = http_method
+                        credentials = client_manager \
+                                      .get_client_by_id( 'client_1' ) \
+                                      .get_resource( service, auth_type ) \
+                                      .get_data()
+
+                        data_dict[ 'credentials' ] = credentials
 
                         print( data_dict )
                         result = self.do_request( data_dict )
@@ -244,6 +262,9 @@ class WOLFFNodeProxy( MQTTServer ):
     def get_client_port( self ):
         return self.client_port
 
+    def decode_data( self, encoded_message ):
+        pass
+
     def do_request( self, data_dict, topic ):
         """
         Send a request ot the MQTT broker, with the 
@@ -272,7 +293,7 @@ class WOLFFNodeProxy( MQTTServer ):
 
         self.get_client().loop_start()
 
-        client_manager = client_manager.ClientManager( 'clients' )
+        client_manager = ClientManager( 'clients' )
 
         with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
             # bind to the socket 
