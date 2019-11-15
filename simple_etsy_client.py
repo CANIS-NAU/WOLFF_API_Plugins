@@ -4,8 +4,20 @@ import wolff_api_plugins.client.client as client
 import wolff_api_plugins.client.server_connection as conn
 import wolff_api_plugins.client.message as message
 import time
+import argparse
 
 def main():
+
+    argp = argparse.ArgumentParser()
+
+    argp.add_argument( '--ip', default = "127.0.0.1", 
+                       help = 'The ip to look for a server on.' 
+                     )
+    argp.add_argument( '--port', default = 5555, 
+                       help = "The port to bind to."
+                     )
+
+    cli_args = argp.parse_args()
 
     args = { 'quantity': 0, 'title': '', 'description': '',
                 'price': 0, 'who_made': '', 'is_supply': True, 'when_made': '',
@@ -19,8 +31,8 @@ def main():
                                    )
 
 
-    connect = conn.TCPServerConnection( ip = "127.0.0.1",
-                                         port = 5555
+    connect = conn.TCPServerConnection( ip = cli_args.ip,
+                                         port = cli_args.port
                                       )
     args = { 'user_id': '' }
 
