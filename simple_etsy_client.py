@@ -2,8 +2,7 @@
 import wolff_api_plugins.client.api_hook as hook
 import wolff_api_plugins.client.client as client
 import wolff_api_plugins.client.server_connection as conn
-import wolff_api_plugins.client.oauth_credentials as cred
-import wolff_api_plugins.client.message
+import wolff_api_plugins.client.message as message
 import time
 
 def main():
@@ -16,47 +15,44 @@ def main():
     create_listing = hook.APIMethod( uri = 'listings',
                                      args = args,
                                      http_method = 'post',
-                                     name = 'createListing'
+                                     name = 'create_listing'
                                    )
 
 
-    connect = conn.MQTTServerConnection( ip = "127.0.0.1",
-                                         port = 1883
+    connect = conn.TCPServerConnection( ip = "127.0.0.1",
+                                         port = 5555
                                       )
-    auth = cred.OAuth1Credentials()
-    auth.get_from_file( 'etsy_keys.tsv' )
-
     args = { 'user_id': '' }
 
-    gubo = hook.APIMethod( uri = '/users/:user_id/billing/overview',
-                           args = args, http_method = 'get', name = 'gubo'
-                         )
+    # 'gubo' = getUserBillingOverview, not currently implemented
+    # with encoding/decoding
+    # gubo = hook.APIMethod( uri = '/users/:user_id/billing/overview',
+    #                        args = args, http_method = 'get', name = 'gubo'
+    #                      )
 
-    etsy_hook = hook.APIHook( base_url = 'https://openapi.etsy.com/v2/',
-                              methods = [ create_listing, gubo ]
+    etsy_hook = hook.APIHook( service = 'etsy',
+                              methods = [ create_listing ]
                             )
 
 
     etsy_client = client.Client( connection = connect, endpoint = etsy_hook,
-                                 credentials = auth,
                                  message_type = message.EtsyMessage
                                 )
     etsy_client.specialize()
 
     time.sleep( 10 )
-    etsy_client.createListing( quantity = 1, title = "title_1",
+    etsy_client.create_listing( quantity = 1, title = "title_1",
                                description = "desc_1",
-                               price = 0.45, who_made = 'i_did', is_supply = True,
-                               when_made = 'made_to_order', shipping_template_id = 76575991147
+                               price = 16.04, who_made = 'collective', is_supply = True,
+                               when_made = '1990s', shipping_template_id = 76575991147
     )
 
     time.sleep( 35 ) 
-    etsy_client.gubo( user_id = 'ezk6e2q6' )
 
     # response can take a little bit
     # etsy_client.get_connection().subscribe_to( 'responses/client_1' )
     time.sleep( 35 ) 
-    result = etsy_client.get_connection().check_for_messages()
+    # result = etsy_client.get_connection().check_for_messages()
     print( result )
 
 
