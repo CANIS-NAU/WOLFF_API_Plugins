@@ -30,10 +30,10 @@ class EtsyEncoder:
     def encode( self, etsy_data ):
         encoding_method = self._get_encoding_method( etsy_data )
 
-        return encoding_method( etsy_data )
+        return encoding_method( etsy_data[ 'method' ][ 'params' ] )
 
     def _get_encoding_method( self, etsy_data ):
-        if etsy_data[ 'method' ].get_name() == 'create_listing':
+        if etsy_data[ 'method' ][ 'name' ] == 'create_listing':
             return self._encode_create_listing
 
     def _encode_create_listing( self, create_listing_data ):
