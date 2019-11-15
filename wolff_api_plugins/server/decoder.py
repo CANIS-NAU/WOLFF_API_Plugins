@@ -72,29 +72,32 @@ class EtsyDecoder:
 
 
     def _decode_create_listing_message( self, message ):
+        decoded_message = dict()
         output = dict()
 
+        output[ 'api_details' ] = ( 'etsy', 'create_listing' )
+
         title = message[ 2 ]
-        output[ 'title' ] = self.title_map[ title ]
+        decoded_message[ 'title' ] = self.title_map[ title ]
 
         description = message[ 3 ]
-        output[ 'description' ] = self.description_map[ description ]
+        decoded_message[ 'description' ] = self.description_map[ description ]
 
         quantity = message[ 4 ]
-        output[ 'quantity' ] = quantity
+        decoded_message[ 'quantity' ] = quantity
 
         price = self._get_price( message[ 5:7 ] )
-        output[ 'price' ] = price
+        decoded_message[ 'price' ] = price
 
         who_made = message[ 7 ] & 0b00001111
-        output[ 'who_made' ] = self.who_made_map[ who_made ]
+        decoded_message[ 'who_made' ] = self.who_made_map[ who_made ]
 
         when_made_mask = 0b01110000
         when_made = ( message[ 7 ] & when_made_mask ) >> 4
-        output[ 'when_made' ] = self.when_made_map[ when_made ]
+        decoded_message[ 'when_made' ] = self.when_made_map[ when_made ]
 
         is_supply = ( message[ 7 ] & 0b10000000 ) >> 7
-        output[ 'is_supply' ] = is_supply
+        decoded_message[ 'is_supply' ] = is_supply
 
         # stp = shipping_template_part
         stp1 = message[ 8 ]
@@ -108,7 +111,9 @@ class EtsyDecoder:
                                ( stp3 * ( 256 ** 2 ) ) + \
                                ( stp4 * ( 256 ** 1 ) ) + \
                                ( stp5 * ( 256 ** 0 ) )
-        output[ 'shipping_template_id' ] = shipping_template_id
+        decoded_message[ 'shipping_template_id' ] = shipping_template_id
+
+        output[ 'message' ] = decoded_message
 
         return output
         
