@@ -19,7 +19,7 @@ class Client:
         self._endpoint    = endpoint
         self._credentials = credentials
         self._id = client_id
-        self._message_type = message
+        self._message_type = message_type
 
     def set_connection( self, server_connection ):
         """
@@ -109,6 +109,9 @@ class Client:
         for method in self._endpoint.get_methods():
             self._specialize_with( self._endpoint, method )
 
+    def get_message_type( self ):
+        return self._message_type
+
     """
     Specialize the client with a certain method.
     Adds the method to the client, allowing 
@@ -127,7 +130,7 @@ class Client:
         
         """
         def new_method( self,
-                        base_url = "",
+                        service = "",
                         http_method = "",
                         **kwargs
                       ):
@@ -135,26 +138,35 @@ class Client:
 
             http_method.set_args( kwargs )
 
-            m_args[ 'url' ] = base_url + http_method.get_uri( substitute = True )
-            m_args[ 'credentials' ] = self.get_credentials().as_dict()
+            m_args[ 'service' ] = service
+
+            # credentials may not be included, especially in the
+            # 'smart-server' setting
+            try:
+                m_args[ 'credentials' ] = self.get_credentials().as_dict()
+            except AttributeError:
+                pass
+
             m_args[ 'method' ] = dict()
             m_args[ 'method' ][ 'params' ] = http_method.args_as_dict()
+            m_args[ 'method' ][ 'name' ] = http_method.get_name()
             m_args[ 'method' ][ 'http_method' ] = http_method.get_http_method()
             m_args[ 'client_id' ] = self.get_id()
 
-            ret = self.get_connection().send( self._message_type( m_args ) )
+            ret = self.get_connection() \
+                      .send( self.get_message_type()( m_args ) )
 
             http_method.clear_args()
 
             return ret
 
-        url = endpoint.get_url()
+        service = endpoint.get_service()
         http_method = method.get_http_method()
         args = method.args_as_dict()
 
         method_name = method.get_name()
 
-        fn = lambda **kwargs: new_method( self, base_url = url,
+        fn = lambda **kwargs: new_method( self, service = service,
                                           http_method = method,
                                           **kwargs
                                         )
