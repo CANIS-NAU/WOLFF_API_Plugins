@@ -92,21 +92,7 @@ class WOLFFServer:
                             break
 
                         data_dict = self.decode_data( data )
-                        data_dict[ 'method' ] = dict()
-
-                        service, method = data_dict[ 'api_details' ]
-
-                        data_dict[ 'url' ] = api_map.get_complete_url( service, method )
-                        http_method =  api_map.get_http_method( service, method )
-                        auth_type = api_map.get_auth_type( service )
-
-                        data_dict[ 'method' ][ 'http_method' ] = http_method
-                        credentials = client_manager \
-                                      .get_client_by_id( 'client_1' ) \
-                                      .get_resource( service, auth_type ) \
-                                      .get_data()
-
-                        data_dict[ 'credentials' ] = credentials
+                        self.annotate_data( data_dict )
 
                         print( data_dict )
                         result = self.do_request( data_dict )
@@ -122,6 +108,21 @@ class WOLFFServer:
         """
         return OAuth1Session( **credentials )
 
+    def annotate_data( self, data_dict ):
+        data_dict[ 'method' ] = dict()
+        service, method = data_dict[ 'api_details' ]
+
+        data_dict[ 'url' ] = api_map.get_complete_url( service, method )
+        http_method =  api_map.get_http_method( service, method )
+        auth_type = api_map.get_auth_type( service )
+
+        data_dict[ 'method' ][ 'http_method' ] = http_method
+        credentials = client_manager \
+                      .get_client_by_id( 'client_1' ) \
+                      .get_resource( service, auth_type ) \
+                      .get_data()
+
+        data_dict[ 'credentials' ] = credentials
 
 class MQTTServer( WOLFFServer ):
     """
@@ -161,6 +162,7 @@ class MQTTServer( WOLFFServer ):
 
             # get the method name from the URL 
             data_dict = self.decode_data( msg.payload )
+            self.annotate_data( data_dict )
             topic = str( msg.topic ).split( '/' )
             topic[ 0 ] = 'responses'
 
