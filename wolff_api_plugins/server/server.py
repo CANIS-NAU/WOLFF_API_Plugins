@@ -276,7 +276,7 @@ class WOLFFNodeProxy( MQTTServer ):
     def decode_data( self, encoded_message ):
         pass
 
-    def do_request( self, data_dict, topic ):
+    def do_request( self, data, topic ):
         """
         Send a request ot the MQTT broker, with the 
         specified topic.
@@ -287,7 +287,7 @@ class WOLFFNodeProxy( MQTTServer ):
                  'posts/client_1' for example.
         """
         self.get_client().publish( topic,
-                                   self.encode_data( data_dict ),
+                                   data,
                                    qos = 1
                                  )
 
@@ -327,9 +327,6 @@ class WOLFFNodeProxy( MQTTServer ):
                             break
 
                         # get the method name from the URL 
-                        data_dict = self.decode_data( data )
-                        topic = f"posts/{ data_dict[ 'client_id' ] }"
-                        auth = client_manager.get_client_by_id( data_dict[ 'client_id' ] )
-
-                        result = self.do_request( data_dict, topic )
+                        topic = f"posts/"
+                        result = self.do_request( data, topic )
                         # conn.sendall( result.content )
