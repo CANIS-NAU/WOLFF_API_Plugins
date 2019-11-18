@@ -14,7 +14,8 @@ def main():
                        help = 'The ip to look for a server on.' 
                      )
     argp.add_argument( '--port', default = 5555, 
-                       help = "The port to bind to."
+                       help = "The port to bind to.",
+                       type = int
                      )
 
     cli_args = argp.parse_args()
@@ -52,7 +53,6 @@ def main():
                                 )
     etsy_client.specialize()
 
-    time.sleep( 10 )
     etsy_client.create_listing( quantity = 1, title = "title_1",
                                description = "desc_1",
                                price = 16.04, who_made = 'collective', is_supply = True,
