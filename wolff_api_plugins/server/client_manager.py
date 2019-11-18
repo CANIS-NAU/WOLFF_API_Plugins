@@ -3,12 +3,26 @@ import resource
 from . client import Client
 
 class ClientManager:
+    """
+    A ClientManager handles clients and the resources 
+    that they use. Each managed client has a number of resources
+    that allow the client to have persistent data. 
+    """
     def __init__( self, client_dir ):
+        """
+        Create a ClientManager, whose clients are in client_dir.
+        Within client_dir, each client with id x is represented in 
+        client_dir/client_x, where x is the client's id. 
+        """
         self._dir = client_dir
         self._clients = dict()
         self._clients_from_dir( client_dir )
 
     def _clients_from_dir( self, search_dir ):
+        """
+        Get clients from a specified search_dir. 
+        Each client is retrieved with its resources.
+        """
         clients = dict()
 
         # get the full path for each client
@@ -29,6 +43,14 @@ class ClientManager:
         return self._clients[ client_id ]
 
     def check_existing_client( self, client_id ):
+        """
+        Check whether a client already exists. 
+        A client exists if 'client_x' exists in 
+        client_dir, where x is the id of this client.
+        
+        Throws:
+           ValueError if the client with client_id already exists.
+        """
         if client_id in self._clients:
             raise ValueError( f"Client with id {new_client.get_id()}"
                                "already exists!"
@@ -38,6 +60,20 @@ class ClientManager:
                                           identifier,
                                           identifier_value
                                         ):
+        """
+        Retrieve a client by a service identifier. 
+        A service identifier is used to uniquely identify a client 
+        that uses a service. 
+
+        Params:
+         service: the service (etsy, for example) to identify 
+                  a client in.
+         identifier: the identifier to try and identify a client by.
+                     For example, an etsy client can be identified by 
+                     a 'shipping_template_id'.
+         identifier_value: the value of the identifier. A client who has this
+                           identifier (if any) will be returned.
+        """
         identifier_value = str( identifier_value )
         for client in self.get_clients():
             try:
@@ -54,15 +90,34 @@ class ClientManager:
         return self._clients.values()
 
     def register_existing_client( self, new_client ):
+        """
+        Register a client object that has already been initialized.
+        
+        Param:
+            new_client: a Client object that will be initialized.
+        
+        Pre:
+           new_client.get_id() cannot be in self.client_dir
+        """
         self.check_existing_client( new_client.get_id() )
         self._clients[ new_client.get_id() ] = new_client
 
     def _get_client_nums( self ):
+        """
+        Get the client numbers for each client. 
+        
+        Returns:
+           a list of integer client ids.
+        """
         get_num = lambda x: int( x.split( '_' )[ 1 ] )
         client_ids = list( self._clients.keys() )
         return [ get_num( cli_id ) for cli_id in client_ids ]
 
     def register_client( self, resources ):
+        """
+        Register a client with certain resources.
+        Creates the necessary file structure for each resource.
+        """
         client_num = max( self._get_client_nums() ) + 1
 
         new_cl_id = f'client_{client_num}'
