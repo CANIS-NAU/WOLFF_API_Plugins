@@ -114,9 +114,8 @@ class MQTTServerConnection:
         Check if our message queue has had any items placed into it.
         Uses this class' mutex to avoid race conditions with the message-watch thread.
         
-        Note: Calling this method clears the cache of any existing messages
-        Returns:
-          A list of string messages that have been received by the client
+        @note Calling this method clears the cache of any existing messages
+        @returns  A list of string messages that have been received by the client
         """
 
         self._lock.acquire()
@@ -157,11 +156,8 @@ class MQTTServerConnection:
         Sends a message to the broker through the client.
         Subscribes to the topic where the response will be sent. 
 
-        Args:
-          message: The message to send
-        
-        Returns: 
-          status of the attempt to send the message
+        @param message The message to send
+        @returns  status of the attempt to send the message
         """
         # connect if we are not already connected
         client = self.get_client( connect = not self._connected )

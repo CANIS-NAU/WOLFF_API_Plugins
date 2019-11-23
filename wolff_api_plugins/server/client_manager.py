@@ -65,13 +65,12 @@ class ClientManager:
         A service identifier is used to uniquely identify a client 
         that uses a service. 
 
-        Params:
-         service: the service (etsy, for example) to identify 
+        @param service the service (etsy, for example) to identify 
                   a client in.
-         identifier: the identifier to try and identify a client by.
+        @param identifier the identifier to try and identify a client by.
                      For example, an etsy client can be identified by 
                      a 'shipping_template_id'.
-         identifier_value: the value of the identifier. A client who has this
+        @param identifier_value the value of the identifier. A client who has this
                            identifier (if any) will be returned.
         """
         identifier_value = str( identifier_value )
@@ -93,11 +92,9 @@ class ClientManager:
         """
         Register a client object that has already been initialized.
         
-        Param:
-            new_client: a Client object that will be initialized.
+        @param new_client a Client object that will be initialized.
         
-        Pre:
-           new_client.get_id() cannot be in self.client_dir
+        @pre new_client.get_id() cannot be in self.client_dir
         """
         self.check_existing_client( new_client.get_id() )
         self._clients[ new_client.get_id() ] = new_client
