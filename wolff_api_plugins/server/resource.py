@@ -168,6 +168,10 @@ class OAuth1Resource( FileResource ):
         return hash( "oauth1" )
 
 class ShippingTemplateIdResource( FileResource ):
+    """
+    A file resource that represents the shipping template id for an etsy 
+    user. 
+    """
     def __init__( self, resource_id, base_path, root_path = '.',
                   values = None
                 ):
