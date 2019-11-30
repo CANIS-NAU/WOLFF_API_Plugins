@@ -79,7 +79,7 @@ def parse_keys_from_f( fname ):
     with open( fname, 'r' ) as of:
         for line in of:
             key, val = line.strip().split( '\t' )
-            return_credentials[ key ] = val
+            return_credentials[ key.strip() ] = val.strip()
     return return_credentials
 
 
