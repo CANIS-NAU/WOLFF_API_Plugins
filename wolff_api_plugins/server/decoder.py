@@ -4,25 +4,56 @@ class Applications( Enum ):
     ETSY = 1
 
 class DecoderFactory:
+    """
+    Returns a decoder based upon the service
+    specified in the encoded method
+    
+    @param message the message for which a decoder
+           is reduced
+    @returns A decoder that can decode the message
+    """
     def get_decoder( self, message ):
         decoder = self.get_service( message )
         return decoder
 
     def get_service( self, message ):
+        """
+        Get a service-specific decoder.
+        """
         application = message[ 0 ]
 
         if application == Applications.ETSY.value:
             return EtsyDecoder()
 
 class EtsyDecoder:
+    """
+    A class that is capable of decoding
+    messages for the Etsy service.
+    """
     class Services( Enum ):
+        """
+        An enum listing the services that are 
+        currently available.
+        """
         CREATE_LISTING = 1
 
         @classmethod
         def has_value( cls, value ):
+            """
+            Determine if this enum has a value.
+            We use this to check if a method is supported 
+            by the decoder. 
+            
+            @param value The value to check for
+            @returns True if this class has value, 
+                     false otherwise.
+            """
             return value in cls._value2member_map_
 
     def __init__( self ):
+        """
+        A map associating bytes with titles.
+        """
         self.title_map       = { 0x01: 'title_1' }
         self.description_map = { 0x02: 'desc_1' }
         self.who_made_map    = { 0x01: 'i_did',
@@ -44,6 +75,9 @@ class EtsyDecoder:
         return EtsyDecoder.Services.has_value( message[ 0 ] )
 
     def get_service_decoder( self, message ):
+        """
+        Get a method that will decode messages for a certain service.
+        """
         if message[ 1 ] == EtsyDecoder.Services.CREATE_LISTING.value:
             return self._decode_create_listing_message
 
@@ -55,9 +89,16 @@ class EtsyDecoder:
         return decode_fn( message )
 
     def _get_price( self, price_bytes ):
+        """
+        Get the price of the product from 
+        a list of two bytes representing the price of the product.
+        @param price_bytes Two bytes of an encoded method 
+               that represent the price portion.
+        @returns the price of the product
+        """
         integral_byte   = price_bytes[ 0 ]
 
-        # mask off first 4 bytes
+        # mask off first 4 bits
         fractional_byte = price_bytes[ 1 ] & 0x0F
         fractional_price = int( fractional_byte ) / 100.0
 
@@ -72,6 +113,12 @@ class EtsyDecoder:
 
 
     def _decode_create_listing_message( self, message ):
+        """
+        Decode a message that is for creating an Etsy listing.
+        @param message an encoded message
+        @returns A dictionary containing the arguments for create_listing
+                 and their values.
+        """
         decoded_message = dict()
         output = dict()
 

@@ -5,16 +5,48 @@ class Applications( Enum ):
     ETSY = 1
 
 class EtsyEncoder:
+    """
+    An EtsyDecode handles the details required for 
+    the encoding and decoding of Etsy message, including 
+    the maps necessary for mapping strings -> byte values in 
+    the encoded message
+    """
     class Services( Enum ):
+        """
+        An enum detailing the services that are 
+        currently supported by the Encoder
+        """
         CREATE_LISTING = 1
 
     def __init__( self ):
+
+        # TODO: these maps should be placed in a 'create listing class'
+        # containing maps and their inverses
+        """
+        The title map, specifying how titles should be 
+        mapped to byte values.
+        These can be expanded until there are 0xFF values mapped.
+        """
         self.title_map       = { 'title_1': 0x01 }
+
+        """
+        The description map, specifying how descriptions should be 
+        mapped to byte values.
+        These can be expanded until there are 0xFF values mapped.
+        """
         self.description_map = { 'desc_1': 0x02 }
+
+        """
+        Maps values for create_listing's 'who_made' enum
+        """
         self.who_made_map    = { 'i_did': 0x01,
                                  'collective': 0x02,
                                  'someone_else': 0x03
                                }
+
+        """
+        Maps values for create_listing's 'when_made' enum
+        """
         self.when_made_map   = { 'made_to_order': 0x01,
                                  '2010_2019': 0x02,
                                  '2000_2009': 0x03,
@@ -28,6 +60,27 @@ class EtsyEncoder:
 
 
     def encode( self, etsy_data ):
+        """
+        Encode a dictionary containing etsy data.
+        
+        @param etsy_data A dictionary containing the data
+               necessary to perform a request to an Etsy method.
+               The dictionary should be of the form:
+
+               { 'service': 'etsy', 
+                 'method': {'params': {}, 'name': '' 
+                           },
+                 'client_id': ''
+               }
+        
+              Where 'name' is the name of the method, 
+              such as 'create_listing', and 'params' contains 
+              a dictionary of parameters and their values for 
+              the method.
+        
+        @returns A method that is capable of encoding either etsy_data,
+                 or a dictionary of the same type
+        """
         encoding_method = self._get_encoding_method( etsy_data )
 
         return encoding_method( etsy_data[ 'method' ][ 'params' ] )
@@ -37,6 +90,23 @@ class EtsyEncoder:
             return self._encode_create_listing
 
     def _encode_create_listing( self, create_listing_data ):
+        """
+        Encode a create listing request. Encoded message 
+        specification can be found here: 
+         https://github.com/CANIS-NAU/WOLFF_Protocol/wiki/
+        
+        @param create_listing_data a dictionary containing the parameters 
+               required to create an etsy listing and their values. This 
+               dictionary should be of the form: 
+        
+        { 'quantity': 1, 'title': 'title_1', 'description': 'desc_1', 
+          'price': 16.04, 'who_made': 'collective', 'is_supply': True, 
+          'when_made': '1990s', 'shipping_template_id': 76575991147
+        }
+        
+        @returns the encoded message
+             
+        """
         payload = bytearray( [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] )
         payload[ 0 ] |= Applications.ETSY.value
         payload[ 1 ] |= EtsyEncoder.Services.CREATE_LISTING.value

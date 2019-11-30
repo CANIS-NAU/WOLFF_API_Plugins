@@ -32,6 +32,12 @@ class WOLFFServer:
         return json.dumps( data )
 
     def decode_data( self, data ):
+        """
+        Decode a message, generating a dictionary of 
+        arguments and their values.
+        Details of the encoded message can be found here:
+        https://github.com/CANIS-NAU/WOLFF_Protocol/wiki
+        """
         decoder_factory = DecoderFactory()
         decoder = decoder_factory.get_decoder( data )
         data_dict = decoder.decode( data )
@@ -42,19 +48,17 @@ class WOLFFServer:
         Perform a request on behalf of the user. Uses the appropriate
         request handler that allows for OAUth authentication using the users' credentials.
 
-        Args:
-          data_dict: A dictionary containing data that allows 
-                     us to determine the parameters for our request.
+        @param  data_dict: A dictionary containing data that allows 
+        us to determine the parameters for our request.
                      
-                     We need the following:
+        We need the following:
                         credentials: oauth1 (oauth2 not supported currently) credentials 
                                      containing the necessary args to perform authenticated requests.
                         http_method: the http method to perform 
                         url: the base url + the uri to submit the request to.
                         params: The paramaters (and their arguments) to include in the request
-        Returns:
-            Result: the result object returned by OAuthRequestsLib
-                             
+
+        @returns the result object returned by OAuthRequestsLib
         """
         request_handler = self.get_request_handler( data_dict[ 'credentials' ] )
 
@@ -102,12 +106,56 @@ class WOLFFServer:
         Get the request handler that allows us to perform
         authenticated http requests on behalf of the client.
         
-        Args:
-           credentials: The user credentials to use for authenticating the user 
+        @param credentials: The user credentials to use for authenticating the user 
         """
         return OAuth1Session( **credentials )
 
     def annotate_data( self, data_dict, client_manager ):
+        """
+        Annotate a data dictionary with client and 
+        service-specific information that comes from the 
+        message.
+        
+        @pre data_dict contains the following:
+           {'api_details': ('etsy', 'create_listing'), 
+            'message': {'title': 'title_1', 'description': 'desc_1', 
+                        'quantity': 1, 'price': 16.04, 'who_made': 'collective', 
+                        'when_made': '1990s', 'is_supply': 1, 'shipping_template_id': 76575991147
+                       }
+           }
+        'api_details' is a tuple containing the service and method 
+        being used.
+        Any non-dictionary values are examples, 
+        and will be dependent upon the message itself, but the 
+        keys are required. 'Message' will be dependent upon 
+        the service/method used.
+
+
+        @post data_dict contains:
+        {'api_details': ('etsy', 'create_listing'), 
+         'message': {'title': 'title_1', 'description': 'desc_1', 
+                     'quantity': 1, 'price': 16.04, 'who_made': 'collective', 
+                     'when_made': '1990s', 'is_supply': 1, 'shipping_template_id': 76575991147
+                    }, 
+         'method': {'http_method': 'post'}, 
+         'url': 'https://openapi.etsy.com/v2/listings/', 
+         'credentials': {'client_key': '', 'client_secret': '', 
+                         'resource_owner_key': '', 
+                         'resource_owner_secret': ''
+                        }
+        }
+        The values of method, url, and credentials are again dependent upon 
+        api_details and mesage
+
+        @param client_manager A client manager that 
+               can be used to identify clients based 
+               upon a service.
+        @param A dictionary containing the data from a 
+               decoded message
+        @returns a dictionary that is ready to be sent 
+                 as an api request by do_request
+        
+        """
         api_map = APIMap()
         data_dict[ 'method' ] = dict()
         service, method = data_dict[ 'api_details' ]
@@ -281,10 +329,9 @@ class WOLFFNodeProxy( MQTTServer ):
         Send a request ot the MQTT broker, with the 
         specified topic.
         
-        Params:
-           data_dict: A dictionary containing the data to send.
-           topic: the string topic to publish the message to,
-                 'posts/client_1' for example.
+        @param data_dict A dictionary containing the data to send.
+        @param topic the string topic to publish the message to,
+               'posts/client_1' for example.
         """
         self.get_client().publish( topic,
                                    data,

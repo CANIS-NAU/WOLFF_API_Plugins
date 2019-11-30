@@ -1,7 +1,21 @@
 
 class APIMap:
-    
+    """
+    An APIMap contains the information necessary to retrieve 
+    the base url, methods and their arguments, 
+    and authentication types for services.
+    """
     def __init__( self ):
+        """
+        Create the api map.
+        For each service, we list its base url,
+        its methods, and the authentication type.
+        
+        For each method, the uri, http method, and service 
+        identifier are listed. The service_identifier is an identifier 
+        that is unique to a user that wants to perform a method.
+        From this service identifier, a user can be identified.
+        """
         self.api_map = { "etsy": { 'base_url': 'https://openapi.etsy.com/v2',
                                    'create_listing': { 'uri': 'listings',
                                                        'http_method': 'post',

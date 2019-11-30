@@ -12,11 +12,11 @@ class Client:
         Initialize a client with an id, certain resources, and 
         a base path from which the client references it sresources.
         
-        Params:
-           cli_id: Id of the client to create. This ID should be unique to a 
+        
+        @param cli_id Id of the client to create. This ID should be unique to a 
                   certain directory in which clients are located.
-           resources: The resources a client is created with.
-           base_path: The base path for the client's resources.
+        @param resources The resources a client is created with.
+        @param base_path The base path for the client's resources.
 
         """
         self._id = cli_id
@@ -27,10 +27,9 @@ class Client:
         """
         Instantiate resources for a client. 
         
-        Params:
-            resources: A list of resources to instantiate
+        @param resources A list of resources to instantiate
             
-            base: the base path for the resources
+        @param base the base path for the resources
         """
         output = dict()
 

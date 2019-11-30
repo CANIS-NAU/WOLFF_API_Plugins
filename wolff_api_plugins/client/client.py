@@ -26,11 +26,10 @@ class Client:
         Set this client's server connection. The client 
         will use this connection for sending any messages.
         
-        Args: 
-            server_connection: A server connection. This connection
+        @param server_connection: A server connection. This connection
             will be used to send any messages that the client sends.
         """
-        # set the connection to the passed argument
+        
         self._connection = server_connection
 
     def get_id( self ):
@@ -43,11 +42,9 @@ class Client:
         """
         Get the connection stored by this client. 
 
-        Returns: 
-          The client's connection, or None if 
-          the client does not currently have a 
-          connection.
-        
+        @returns The client's connection, or None if 
+                 the client does not currently have a 
+                 connection.
         """
         # return this object's server connection
         return self._connection
@@ -56,14 +53,14 @@ class Client:
         """
         Determine whether the client has a connection. 
 
-        Returns:
-           True if the client has a connection, False otherwise.
+        @returns True if the client has a connection, False otherwise.
         """
         # return whethe the client currently has a connection. 
         return self._connection != None
 
     """
     Set the client's endpoint. 
+    @param endpoint The endpoint for this client.
     """
     def set_endpoint( self, endpoint ):
         self._endpoint = endpoint
@@ -73,8 +70,7 @@ class Client:
     communicate with. The client uses its connection 
     to send messages to the endpoint.
 
-    Returns:
-      The endpoint associated with this client.
+      @returns The endpoint associated with this client.
     """
     def get_endpoint( self ):
         return self._endpoint
@@ -82,8 +78,7 @@ class Client:
     """
     Set this objects credentials.
 
-    Args:
-      credential: The new credential for this object
+    @param credential The new credential for this object
     """
     def set_credentials( self, credential ):
         self._credentials = credentials
@@ -117,8 +112,7 @@ class Client:
     Adds the method to the client, allowing 
     client.method( args ) to be called.
 
-    Params:
-      method: APIMethod (or equivalent) to add to the class.
+    @param APIMethod (or equivalent) to add to the class.
     """
     def _specialize_with( self, endpoint, method ):
 
