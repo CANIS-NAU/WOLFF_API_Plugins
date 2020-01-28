@@ -53,19 +53,17 @@ def main():
                                 )
     etsy_client.specialize()
 
-    etsy_client.create_listing( quantity = 1, title = "title_1",
-                               description = "desc_1",
-                               price = 16.04, who_made = 'collective', is_supply = True,
-                               when_made = '1990s', shipping_template_id = 76575991147
-    )
+    resp = etsy_client.create_listing( quantity = 1, title = "title_1",
+            description = "desc_1",
+            price = 16.04, who_made = 'collective', is_supply = True,
+            when_made = '1990s', shipping_template_id = 84634415230
+            )
 
-    time.sleep( 35 ) 
 
     # response can take a little bit
     # etsy_client.get_connection().subscribe_to( 'responses/client_1' )
-    time.sleep( 35 ) 
     # result = etsy_client.get_connection().check_for_messages()
-    print( result )
+    print( resp )
 
 
 if __name__ == '__main__':
