@@ -6,15 +6,20 @@ import time
 from . client_manager import ClientManager
 from . decoder import *
 from . api_map import *
+from . response_handler import *
 
 class WOLFFServer:
     """ 
         A server for handling messages sent over 
         the WOLFF network.
     """
-    def __init__( self, ip = "127.0.0.1", port = 5555 ):
+    def __init__( self, db_connection,
+                  ip = "127.0.0.1",
+                  port = 5555
+                ):
         self.ip = ip
         self.port = port
+        self.conn = db_connection
 
     def get_ip( self ):
         return self.ip
@@ -95,11 +100,14 @@ class WOLFFServer:
                             break
 
                         data_dict = self.decode_data( data )
+                        result_handler = ResponseHandler( self.conn ) \
+                                         .get_handler( data_dict )
                         self.annotate_data( data_dict, client_manager )
 
-                        print( data_dict )
                         result = self.do_request( data_dict )
-                        conn.sendall( result.content )
+                        id = result_handler \
+                             .handle_response( result.content.decode( 'utf-8' ) )
+                        conn.sendall( str( id ).encode() )
 
     def get_request_handler( self, credentials ):
         """
@@ -191,8 +199,8 @@ class MQTTServer( WOLFFServer ):
     The server expects any requests coming from a client to be in the 'posts/#' topic.
     The response will be sent to the client via the 'respones/client_x' topic.
     """
-    def __init__( self, ip, port, channels = None ):
-        super().__init__( ip, port )
+    def __init__( self, db_connection, ip, port, channels = None ):
+        super().__init__( db_connection, ip, port )
         self._channels = channels if channels else None
 
         self._client = mqtt.Client()
@@ -218,7 +226,16 @@ class MQTTServer( WOLFFServer ):
             client_manager = ClientManager( 'clients' )
             # get the method name from the URL 
             data_dict = self.decode_data( msg.payload )
+
             self.annotate_data( data_dict, client_manager )
+
+            result = self.do_request( data_dict )
+
+            result_handler = ResponseHandler( self.conn ) \
+                             .get_handler( data_dict )
+
+            id = result_handler \
+                 .handle_response( result.content.decode( 'utf-8' ) )
 
             topic = str( msg.topic ).split( '/' )
             topic[ 0 ] = 'responses'
@@ -226,10 +243,8 @@ class MQTTServer( WOLFFServer ):
             # Note: topic is of the form /posts/client_x, where x is the ID for the client
             topic = '/'.join( topic )
 
-            result = self.do_request( data_dict )
-
             time.sleep( 10 )
-            self.get_client().publish( topic, msg.payload, qos = 1 )
+            self.get_client().publish( topic, id, qos = 1 )
 
         self.on_connect = lambda client, userdata, flags, rc: \
                           on_connect( client, userdata, flags, rc, channels = self._channels )
@@ -373,7 +388,9 @@ class WOLFFNodeProxy( MQTTServer ):
                         if not data:
                             break
 
+
                         # get the method name from the URL 
                         topic = f"posts/"
                         result = self.do_request( data, topic )
+                        print( result.content )
                         # conn.sendall( result.content )
