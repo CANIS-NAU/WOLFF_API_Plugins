@@ -1,3 +1,5 @@
+import json
+
 class ResponseHandler:
     def __init__( self, db_conn  ):
         self._conn = db_conn
@@ -17,3 +19,4 @@ class CreateListingResponseHandler:
         
     def handle_response( self, resp_message ):
         listing_id = json.loads( resp_message )[ 'results' ][ 0 ][ 'listing_id' ]
+        return self._db.add_listing( listing_id )
