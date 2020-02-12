@@ -238,10 +238,11 @@ class MQTTServer( WOLFFServer ):
                  .handle_response( result.content.decode( 'utf-8' ) )
 
             topic = str( msg.topic ).split( '/' )
-            topic[ 0 ] = 'responses'
+            #topic[ 0 ] = 'responses'
+            topic = 'responses'
 
             # Note: topic is of the form /posts/client_x, where x is the ID for the client
-            topic = '/'.join( topic )
+            #topic = '/'.join( topic )
 
             time.sleep( 10 )
             self.get_client().publish( topic, id, qos = 1 )
@@ -303,7 +304,8 @@ class WOLFFNodeProxy( MQTTServer ):
             """
             print( "Connected with result code " + str( rc )  )
 
-            client.subscribe( 'responses/client_#' )
+            #client.subscribe( 'responses/client_#' )
+            client.subscribe( 'responses' )
             for chan in channels:
                 client.subscribe( chan )
 
@@ -315,13 +317,15 @@ class WOLFFNodeProxy( MQTTServer ):
 
             # get the method name from the URL 
             data_dict = self.decode_data( msg.payload )
-            topic = str( msg.topic ).split( '/' )
-            topic[ 0 ] = 'posts'
+            print( str( msg.topic ) )
+            #topic = str( msg.topic ).split( '/' )
+            #topic[ 0 ] = 'responses'
 
-            # Note: topic is of the form /posts/client_x, where x is the ID for the client
-            topic = '/'.join( topic )
+            ## Note: topic is of the form /posts/client_x, where x is the ID for the client
+            #topic = '/'.join( topic )
 
-            result = self.do_request( data_dict )
+            #result = self.do_request( data_dict )
+            print( str( msg.payload ))
 
             time.sleep( 10 )
             self.get_client().publish( topic, msg.payload, qos = 1 )
@@ -390,7 +394,8 @@ class WOLFFNodeProxy( MQTTServer ):
 
 
                         # get the method name from the URL 
-                        topic = f"posts/"
+                        print( data )
+                        topic = "posts/1"
                         result = self.do_request( data, topic )
-                        print( result.content )
+                        #print( result.content )
                         # conn.sendall( result.content )
