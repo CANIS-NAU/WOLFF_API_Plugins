@@ -55,4 +55,4 @@ class APIMap:
         if identifier == 'shipping_template_id':
             return data[ 'message' ][ service_identifier ]
         elif identifier == 'listing_id':
-            return data[ 'record_id' ]
+            return data[ 'listing_id' ]
