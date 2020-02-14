@@ -9,7 +9,13 @@ def main():
     argp.add_argument( '--ip', help = "The IP address to connect to.", type = str,
                        default = '127.0.0.1' 
                      )
-    argp.add_argument( '--port', help = "The port to connect to.", type = int, default = 1883 )
+    argp.add_argument( '--port', help = "The port to connect to for "
+                       "interacting with the MQTT broker.", type = int, default = 1883
+                     )
+    argp.add_argument( '--update_port', help = "The port to listen on for "
+                       "handling update messages from clients.",
+                       type = int, default = 1884
+                     )
     argp.add_argument( '--db_file', help = "The name of the file containing a "
                        "SQLite3 database containing WOLFF information. ",
                        type = str, default = 'wolff_db.db'
@@ -20,7 +26,11 @@ def main():
 
     connection = wolff_db.SQLite3DBConnection( args.db_file )
 
-    server = wolff_server.MQTTServer( connection, ip = args.ip, port = args.port )
+    server = wolff_server.MQTTServer( connection,
+                                      ip = args.ip,
+                                      port = args.port,
+                                      update_port = args.update_port
+                                     )
 
     server.start()
 
