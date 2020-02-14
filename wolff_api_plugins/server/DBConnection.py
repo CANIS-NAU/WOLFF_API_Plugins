@@ -5,7 +5,7 @@ class SQLite3DBConnection:
         self.db_file_name = file_name
         self.conn = sqlite3.connect( file_name )
 
-    def add_listing( self, listing_id ):
+    def add_listing( self, listing_id, client_id ):
         c = self.conn.cursor()
         c.execute( '''INSERT INTO 
                       AppRecord (ListingValue) 
@@ -14,7 +14,28 @@ class SQLite3DBConnection:
                  )
         self.conn.commit()
         c.execute( '''SELECT last_insert_rowid()''' )
+
+        res = c.fetchone()[ 0 ]
+
+        c.execute( '''INSERT INTO 
+                      AppUser (EtsyListingID, ClientID )
+                      VALUES( ?, ? )''',
+                   ( listing_id, client_id )
+                 )
+        self.conn.commit()
+
+        return res
+
+    def get_client_by_listing_id( self, listing_id ):
+        c = self.conn.cursor()
+        c.execute( '''SELECT ClientID 
+                      FROM AppUser
+                      WHERE EtsyListingID = (?)''',
+                   ( listing_id, )
+                   )
         return c.fetchone()[ 0 ]
+
+        
 
     def get_listing_id( self, record_id ):
         c = self.conn.cursor()
