@@ -151,6 +151,7 @@ class WOLFFServer:
                          'resource_owner_key': '', 
                          'resource_owner_secret': ''
                         }
+         'client_id': 'client_x'
         }
         The values of method, url, and credentials are again dependent upon 
         api_details and mesage
@@ -168,6 +169,11 @@ class WOLFFServer:
         data_dict[ 'method' ] = dict()
         service, method = data_dict[ 'api_details' ]
 
+        service_identifier_value = api_map.get_service_identifier( service,
+                                                                   method,
+                                                                   data_dict
+                                                                 )
+
         data_dict[ 'url' ] = api_map.get_complete_url( service, method )
         http_method =  api_map.get_http_method( service, method )
         auth_type = api_map.get_auth_type( service )
@@ -176,7 +182,7 @@ class WOLFFServer:
         client_id = client_manager \
                     .get_client_by_service_identifier( service,
                                                        service_identifier,
-                                                       data_dict[ 'message' ][ service_identifier ]
+                                                       service_identifier_value
                                                      ).get_id()
 
         data_dict[ 'method' ][ 'http_method' ] = http_method
@@ -186,6 +192,7 @@ class WOLFFServer:
                       .get_data()
 
         data_dict[ 'credentials' ] = credentials
+        data_dict[ 'client_id' ] = client_id
 
 class MQTTServer( WOLFFServer ):
     """
@@ -199,8 +206,9 @@ class MQTTServer( WOLFFServer ):
     The server expects any requests coming from a client to be in the 'posts/#' topic.
     The response will be sent to the client via the 'respones/client_x' topic.
     """
-    def __init__( self, db_connection, ip, port, channels = None ):
+    def __init__( self, db_connection, ip, port, update_port, channels = None ):
         super().__init__( db_connection, ip, port )
+        self._update_port = update_port
         self._channels = channels if channels else None
 
         self._client = mqtt.Client()
@@ -235,7 +243,9 @@ class MQTTServer( WOLFFServer ):
                              .get_handler( data_dict )
 
             id = result_handler \
-                 .handle_response( result.content.decode( 'utf-8' ) )
+                 .handle_response( result.content.decode( 'utf-8' ),
+                                   data_dict[ 'client_id' ]
+                                 )
 
             topic = str( msg.topic ).split( '/' )
             #topic[ 0 ] = 'responses'
@@ -262,6 +272,34 @@ class MQTTServer( WOLFFServer ):
         self.get_client().connect( self.get_ip(), self.get_port(), timeout )
 
         self.get_client().loop_forever()
+
+        client_manager = ClientManager( 'clients' )
+
+        with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
+            sock.bind( (self.get_ip(), self._update_port ) )
+
+            sock.listen()
+
+            while True:
+                conn, addr = sock.accept()
+
+                data = conn.recv( 4096 )
+
+                if not data:
+                    break
+
+                data_dict = json.loads( data.decode( "utf-8" ) )
+
+                self.annotate_data( data_dict, client_manager )
+
+                # TODO: Fix this lazy hack
+                listing_id = self.conn.get_record_id( data_dict[ 'listing_id' ] )
+                url = data_dict[ 'url' ]
+                split = url.split( ':' )
+                split[ -1 ] = listing_id
+                data_duct[ 'url' ] = ''.join( split )
+
+                self.do_request( data_dict )
 
     def get_client( self ):
         return self._client
