@@ -37,6 +37,8 @@ class EtsyDecoder:
         """
         CREATE_LISTING = 1
 
+        UPDATE_LISTING = 2
+
         @classmethod
         def has_value( cls, value ):
             """
@@ -110,7 +112,11 @@ class EtsyDecoder:
 
         return price
 
+    def decode_update_listing_message( self, message ):
+        """
 
+        """
+        return message
 
     def _decode_create_listing_message( self, message ):
         """
