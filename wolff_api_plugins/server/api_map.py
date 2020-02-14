@@ -21,6 +21,10 @@ class APIMap:
                                                        'http_method': 'post',
                                                        'service_identifier': 'shipping_template_id'
                                                      },
+                                   'update_listing': { 'uri': '/listings:listing_id',
+                                                       'http_method': 'put',
+                                                       'service_identifier': 'listing_id'
+                                                     },
                                    'auth_type': "oauth1"
                                   }
                        }
@@ -44,3 +48,11 @@ class APIMap:
 
     def get_service_identifier( self, service, method ):
         return self.api_map[ service ][ method ][ 'service_identifier' ]
+
+    def get_identifier_value( self, service, method, data ):
+        identifier = self.get_service_identifier( service, method )
+
+        if identifier == 'shipping_template_id':
+            return data[ 'message' ][ service_identifier ]
+        elif identifier == 'listing_id':
+            return data[ 'record_id' ]
