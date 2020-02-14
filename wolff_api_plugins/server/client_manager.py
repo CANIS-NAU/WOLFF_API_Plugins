@@ -8,15 +8,19 @@ class ClientManager:
     that they use. Each managed client has a number of resources
     that allow the client to have persistent data. 
     """
-    def __init__( self, client_dir ):
+    def __init__( self, client_dir, db_conn ):
         """
         Create a ClientManager, whose clients are in client_dir.
         Within client_dir, each client with id x is represented in 
         client_dir/client_x, where x is the client's id. 
+        
+        Additionally stores a connection to a WOLFF database 
+        containing information regarding records that have been created
         """
         self._dir = client_dir
         self._clients = dict()
         self._clients_from_dir( client_dir )
+        self._conn = db_conn
 
     def _clients_from_dir( self, search_dir ):
         """
@@ -74,7 +78,14 @@ class ClientManager:
                            identifier (if any) will be returned.
         """
         identifier_value = str( identifier_value )
+
+        if identifier == 'listing_id':
+            listing_id = self.conn.get_listing_id( identifier_value )
+            cli_id = self.conn.get_client_by_listing_id( listing_id )
+            return self.get_client_by_id( cli_id )
+        
         for client in self.get_clients():
+            
             try:
                 result = client.get_resource( service, identifier ) \
                                .contains( identifier_value )
