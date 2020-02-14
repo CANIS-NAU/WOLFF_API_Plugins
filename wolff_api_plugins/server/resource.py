@@ -212,6 +212,6 @@ class ResourceFactory:
     def get( str_type ):
         if str_type == "oauth1":
             return OAuth1Resource
-        if str_type == "shipping_template_id":
+        elif str_type == "shipping_template_id":
             return ShippingTemplateIdResource
         return None
