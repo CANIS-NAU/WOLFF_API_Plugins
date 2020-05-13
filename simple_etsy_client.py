@@ -53,10 +53,10 @@ def main():
                                 )
     etsy_client.specialize()
 
-    resp = etsy_client.create_listing( quantity = 1, title = "title_1",
+    resp = etsy_client.create_listing( quantity = 2, title = "title_1",
             description = "desc_1",
-            price = 16.04, who_made = 'collective', is_supply = True,
-            when_made = '1990s', shipping_template_id = 84634415230
+            price = 1.11, who_made = 'i_did', is_supply = True,
+            when_made = 'made_to_order', shipping_template_id = 76575991147
             )
 
 
