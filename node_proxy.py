@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import wolff_api_plugins.server.server as wolff_server
+import wolff_api_plugins.server.DBConnection as wolff_db
 
 def main():
     argp = argparse.ArgumentParser( description = "Node proxy for the WOLFF server architecture. "
@@ -25,7 +26,12 @@ def main():
 
     args = argp.parse_args()
 
-    server = wolff_server.WOLFFNodeProxy( client_ip = args.client_ip,
+    connection = wolff_db.SQLite3DBConnection( "wolff_db.db" )
+
+
+    args = argp.parse_args()
+
+    server = wolff_server.WOLFFNodeProxy( connection, client_ip = args.client_ip,
                                           client_port = args.client_port,
                                           broker_ip = args.broker_ip,
                                           broker_port = args.broker_port 
