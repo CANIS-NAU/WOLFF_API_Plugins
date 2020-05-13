@@ -33,6 +33,13 @@ def main():
                          filemode ='w'
     )
 
+    logging.getLogger().debug( "Parsed arguments with values: \n"
+                               f"--ip: {args.ip}\n"
+                               f"--port: {args.port}\n"
+                               f"--update_port: {args.update_port}\n"
+                               f"--db_file: {args.db_file}\n"
+                               f"--log_file: {args.log_file}\n"
+    )
     logging.getLogger().debug( f"Creating a SQLITE connection to DB file: {args.db_file}" )
     connection = wolff_db.SQLite3DBConnection( args.db_file )
 
