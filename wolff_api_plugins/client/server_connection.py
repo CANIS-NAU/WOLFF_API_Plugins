@@ -42,6 +42,7 @@ class TCPServerConnection:
         for a response from the server, disconnects 
         after waiting and not getting a response.
         """
+        message.encode()
 
         # open the socket using this object's host and
         with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
