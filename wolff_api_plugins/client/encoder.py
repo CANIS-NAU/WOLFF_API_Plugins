@@ -174,6 +174,7 @@ class EtsyEncoder:
         payload[ 11 ] = stp4
         payload[ 12 ] = stp5
 
+        print( ''.join( [ "%02X " %  x for x in payload ] ).strip() )
         return payload
 
 
