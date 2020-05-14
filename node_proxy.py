@@ -2,6 +2,8 @@
 import argparse
 import wolff_api_plugins.server.server as wolff_server
 import wolff_api_plugins.server.DBConnection as wolff_db
+import logging
+import sys
 
 def main():
     argp = argparse.ArgumentParser( description = "Node proxy for the WOLFF server architecture. "
@@ -23,15 +25,34 @@ def main():
     argp.add_argument( '--broker_port', help = "The port of the MQTT broker",
                        type = int, default = 1883
                      )
+    argp.add_argument( '--log_file', help = "The name of the file to write log "
+                       "information to.", default = "node_proxy.log"
+                     )
+
 
     args = argp.parse_args()
 
-    connection = wolff_db.SQLite3DBConnection( "wolff_db.db" )
+    logging.basicConfig( level = logging.NOTSET,
+                         format = '%(asctime)s [%(levelname)-5.5s] %(message)s', 
+                         handlers = [
+                             logging.FileHandler( args.log_file ),
+                             logging.StreamHandler( sys.stdout )
+                         ]
+    )
 
 
-    args = argp.parse_args()
+    logging.getLogger().debug( "Parsed arguments with values: \n"
+                               f"--client_ip: {args.client_ip}\n"
+                               f"--client_port: {args.client_port}\n"
+                               f"--broker_ip: {args.broker_ip}\n"
+                               f"--broker_port: {args.broker_port}\n"
+                               f"--log_file: {args.log_file}\n"
+    )
 
-    server = wolff_server.WOLFFNodeProxy( connection, client_ip = args.client_ip,
+    logging.getLogger().debug( "Creating a WOLFF Node proxy" )
+
+
+    server = wolff_server.WOLFFNodeProxy( client_ip = args.client_ip,
                                           client_port = args.client_port,
                                           broker_ip = args.broker_ip,
                                           broker_port = args.broker_port 
