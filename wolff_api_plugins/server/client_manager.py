@@ -8,7 +8,7 @@ class ClientManager:
     that they use. Each managed client has a number of resources
     that allow the client to have persistent data. 
     """
-    def __init__( self, client_dir, db_conn ):
+    def __init__( self, client_dir ):
         """
         Create a ClientManager, whose clients are in client_dir.
         Within client_dir, each client with id x is represented in 
@@ -20,7 +20,6 @@ class ClientManager:
         self._dir = client_dir
         self._clients = dict()
         self._clients_from_dir( client_dir )
-        self._conn = db_conn
 
     def _clients_from_dir( self, search_dir ):
         """
@@ -41,6 +40,9 @@ class ClientManager:
 
         for client, resources in clients.items():
             new_client = Client( client, resources, base_path = self._dir )
+            # logging.getLogger().debug( f"Created new client {client.get_id()} "
+            #                            f"with resources: {''.join( resources )}"
+            # )
             self._clients[ new_client.get_id() ] = new_client
 
     def get_client_by_id( self, client_id ):
@@ -95,6 +97,10 @@ class ClientManager:
             # client doesn't have this service
             except:
                 pass
+
+        logging.getLogger().debug( f"Failed to find a client with identifier ({identifier}) for "
+                                   f"service {service}."
+        )
         
     def get_clients( self ):
         return self._clients.values()
