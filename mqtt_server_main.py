@@ -2,6 +2,7 @@
 import wolff_api_plugins.server.server as wolff_server
 import wolff_api_plugins.server.DBConnection as wolff_db
 import argparse
+import sys
 import logging
 
 def main():
@@ -25,12 +26,18 @@ def main():
                        "information to.", default = "mqtt_server_main.log"
                      )
 
+    handlers=[
+        logging.FileHandler("debug.log"),
+        logging.StreamHandler()
+    ]
 
     args = argp.parse_args()
-    logging.basicConfig( filename = args.log_file,
-                         level = logging.NOTSET,
+    logging.basicConfig( level = logging.NOTSET,
                          format = '%(asctime)s [%(levelname)-5.5s] %(message)s', 
-                         filemode ='w'
+                         handlers = [
+                             logging.FileHandler( args.log_file ),
+                             logging.StreamHandler( sys.stdout )
+                         ]
     )
 
     logging.getLogger().debug( "Parsed arguments with values: \n"
