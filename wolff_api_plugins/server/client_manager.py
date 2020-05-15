@@ -8,7 +8,7 @@ class ClientManager:
     that they use. Each managed client has a number of resources
     that allow the client to have persistent data. 
     """
-    def __init__( self, client_dir ):
+    def __init__( self, client_dir, db_connection ):
         """
         Create a ClientManager, whose clients are in client_dir.
         Within client_dir, each client with id x is represented in 
@@ -20,6 +20,7 @@ class ClientManager:
         self._dir = client_dir
         self._clients = dict()
         self._clients_from_dir( client_dir )
+        self.conn = db_connection
 
     def _clients_from_dir( self, search_dir ):
         """
