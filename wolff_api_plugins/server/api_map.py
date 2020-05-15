@@ -21,7 +21,7 @@ class APIMap:
                                                        'http_method': 'post',
                                                        'service_identifier': 'shipping_template_id'
                                                      },
-                                   'update_listing': { 'uri': '/listings:listing_id',
+                                   'update_listing': { 'uri': '/listings/:listing_id',
                                                        'http_method': 'put',
                                                        'service_identifier': 'listing_id'
                                                      },
