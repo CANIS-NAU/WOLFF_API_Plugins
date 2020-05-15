@@ -3,7 +3,7 @@ import sqlite3
 class SQLite3DBConnection:
     def __init__( self, file_name ):
         self.db_file_name = file_name
-        self.conn = sqlite3.connect( file_name )
+        self.conn = sqlite3.connect( file_name, check_same_thread = False )
 
     def add_listing( self, listing_id, client_id ):
         c = self.conn.cursor()
@@ -45,3 +45,6 @@ class SQLite3DBConnection:
                    ''', ( record_id, )
                  )
         return c.fetchone()[ 0 ]
+
+    def get_record_id( self, record_id ):
+        return self.get_listing_id( record_id )
