@@ -3,8 +3,11 @@ import socket
 import json
 import paho.mqtt.client as mqtt
 import time
+from threading import Thread
+import threading
 import logging
 import binascii
+import struct
 from . client_manager import ClientManager
 from . decoder import *
 from . api_map import *
@@ -92,7 +95,7 @@ class WOLFFServer:
             # listen
             sock.listen() 
 
-            client_manager = ClientManager( 'clients' )
+            client_manager = ClientManager( 'clients', self.conn )
 
             while True:
                 # accept a connection
@@ -191,7 +194,11 @@ class WOLFFServer:
         auth_type = api_map.get_auth_type( service )
         logging.getLogger().debug( f"Auth type for request: {auth_type}" )
         service_identifier = api_map.get_service_identifier( service, method )
+        logging.getLogger().debug( f"Service identifier type for {service} "
+                                   f"{method}: {service_identifier}"
+        )
         service_identifier_value = data_dict[ 'message' ][ service_identifier ]
+        data_dict[ 'message' ][ 'taxonomy_id' ] = 1
 
 
         logging.getLogger().debug( f"Service identifier for request: {service_identifier}" )
@@ -256,7 +263,7 @@ class MQTTServer( WOLFFServer ):
                                        "MQTT server."
             )
 
-            client_manager = ClientManager( 'clients' )
+            client_manager = ClientManager( 'clients', self.conn )
             # get the method name from the URL 
             logging.getLogger().debug( "Attempting to decode the data" )
             data_dict = self.decode_data( msg.payload )
@@ -266,16 +273,22 @@ class MQTTServer( WOLFFServer ):
             logging.getLogger().debug( f"Annotated data: {data_dict}" )
 
             result = self.do_request( data_dict )
-            logging.getLogger().debug( f"Response from server: {result.content.decode( 'utf-8' )}"  )
+            decoded_content = result.content.decode( 'utf-8' )
+            logging.getLogger().debug( f"Decoded Response from server: {decoded_content}"  )
 
             result_handler = ResponseHandler( self.conn ) \
                              .get_handler( data_dict )
 
-            id = result_handler \
-                 .handle_response( result.content.decode( 'utf-8' ),
-                                   data_dict[ 'client_id' ]
-                                 )
-            logging.getLogger().debug( "ID from the database: ", str( id ) )
+            try:
+                id = result_handler \
+                     .handle_response( decoded_content,
+                                       data_dict[ 'client_id' ]
+                     )
+                logging.getLogger().debug( f"ID from the database: {str( id )}" )
+            except Exception as e:
+                logging.getLogger().error( f"ERROR: {str(e)}" )
+                sys.exit( 1 )
+        
 
             topic = str( msg.topic ).split( '/' )
             #topic[ 0 ] = 'responses'
@@ -283,10 +296,10 @@ class MQTTServer( WOLFFServer ):
 
             # Note: topic is of the form /posts/client_x, where x is the ID for the client
             #topic = '/'.join( topic )
-
             time.sleep( 10 )
             logging.getLogger().debug( "Publishing response to MQTT server." )
             self.get_client().publish( topic, id, qos = 1 )
+            logging.getLogger().debug( "Successfully published response." )
 
         self.on_connect = lambda client, userdata, flags, rc: \
                           on_connect( client, userdata, flags, rc, channels = self._channels )
@@ -306,9 +319,11 @@ class MQTTServer( WOLFFServer ):
 
         self.get_client().connect( self.get_ip(), self.get_port(), timeout )
 
+        Thread( target = self.handle_update_requests ).start()
         self.get_client().loop_forever()
 
-        client_manager = ClientManager( 'clients' )
+    def handle_update_requests( self ):
+        client_manager = ClientManager( 'clients', self.conn )
 
         logging.getLogger().debug( "Creating a socket to listen to incoming "
                                    f"update requests on IP: {self.get_ip()}, "
@@ -317,16 +332,24 @@ class MQTTServer( WOLFFServer ):
         with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
             sock.bind( (self.get_ip(), self._update_port ) )
 
-            sock.listen()
-
             while True:
+
+                logging.getLogger().debug( "Waiting for a client to connect" )
+                sock.listen()
+
                 conn, addr = sock.accept()
                 host, port = conn.getpeername()
                 logging.getLogger().debug( "Received a client connection with "
                                            f"IP: {host}, on port: {port}. "
                 )
 
-                data = conn.recv( 4096 )
+                try:
+                    data = conn.recv( 4096 )
+                except Exception as e:
+                    logging.getLogger().error( "Failure to receive bytes from client." )
+                    
+
+                logging.getLogger().debug( f"Received {len( data ) } bytes from client." )
 
                 if not data:
                     break
@@ -340,15 +363,19 @@ class MQTTServer( WOLFFServer ):
                 logging.getLogger().debug( f"Data dictionary (post-annotation): {data_dict}")
 
                 # TODO: Fix this lazy hack
-                listing_id = self.conn.get_record_id( data_dict[ 'listing_id' ] )
+                listing_id = self.conn.get_record_id( data_dict[ 'message' ][ 'listing_id' ] )
                 logging.getLogger().debug( f"Listing id retrieved from DB: {listing_id}")
                 url = data_dict[ 'url' ]
                 split = url.split( ':' )
                 split[ -1 ] = listing_id
+                split[ 0 ] = 'https:'
                 data_dict[ 'url' ] = ''.join( split )
                 logging.getLogger().debug( f"Data dictionary (post-id retrieval): {data_dict}")
 
                 self.do_request( data_dict )
+                conn.sendall( "SUCCESS\n".encode( 'utf-8' ) )
+
+                logging.getLogger().debug( "Sent response back to client." )
 
     def get_client( self ):
         return self._client
@@ -380,8 +407,10 @@ class WOLFFNodeProxy( MQTTServer ):
         self.broker_ip = broker_ip
         self.broker_port = broker_port
         self._channels = channels if channels else None
+        self.cond = threading.Condition()
 
         self._client = mqtt.Client()
+        self.message_buffer = None
 
 
         def on_connect( client, userdata, flags, rc, channels = None ):
@@ -405,17 +434,17 @@ class WOLFFNodeProxy( MQTTServer ):
             logging.getLogger().debug( "Received a message!" )
             # get the method name from the URL 
 
-            data_str = binascii.hexlify( bytearray( data ) )
-            logging.getLogger().debug( "Raw data: ", data_str )
-            logging.getLogger().debug( "Message topic: ", msg.topic )
-            topic = str( msg.topic ).split( '/' )
-            topic[ 0 ] = 'responses'
+            logging.getLogger().debug( f"Message topic: {msg.topic}")
+            # logging.getLogger().debug( f"Data: {int.from_bytes( msg.msg, byteorder = 'big' )}" )
+            if msg.payload is None:
+                logging.getLogger().debug( "Message received is None!" )
+            self.message_buffer = int( msg.payload.decode( 'utf-8' ) )
+            with self.cond:
+                self.cond.notify()
+            logging.getLogger().debug( f"Message data: {self.message_buffer}" )
 
             ## Note: topic is of the form /posts/client_x, where x is the ID for the client
-            topic = '/'.join( topic )
 
-            time.sleep( 10 )
-            self.get_client().publish( topic, msg.payload, qos = 1 )
 
         self.on_connect = lambda client, userdata, flags, rc: \
                           on_connect( client, userdata, flags, rc, channels = self._channels )
@@ -485,16 +514,24 @@ class WOLFFNodeProxy( MQTTServer ):
                     )
 
 
-                    while True:
+                    data = conn.recv( 4096 )
 
-                        data = conn.recv( 4096 )
+                    if not data:
+                        logging.getLogger().error( "ERROR: Data received is empty!" )
+                        break
 
-                        if not data:
-                            break
+                    data_str = binascii.hexlify( bytearray( data ) )
+                    logging.getLogger().debug( f"Data received from client: {data_str}" )
+                    topic = "posts/1"
+                    result = self.do_request( data, topic )
 
-                        data_str = binascii.hexlify( bytearray( data ) )
-                        logging.getLogger().debug( "Data received from client: ", data_str )
-                        topic = "posts/1"
-                        result = self.do_request( data, topic )
-                        #print( result.content )
-                        # conn.sendall( result.content )
+                    logging.getLogger().debug( f"Waiting for response." )
+                    with self.cond:
+                        self.cond.wait_for( lambda: self.message_buffer is not None )
+
+
+                    logging.getLogger().debug( "Response received, "
+                                               f"sending '{self.message_buffer}' to client."
+                    )
+                    conn.sendall( struct.pack( ">I", self.message_buffer ) )
+                    self.message_buffer = None
