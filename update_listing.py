@@ -72,7 +72,18 @@ def main():
 
     logging.getLogger().debug( f"Updated listing data: {target_listing}" )
 
+    request_dict = craft_request( target_listing )
 
+    request_string = json.dumps( request_dict )
+
+    logging.getLogger().debug( f"Post-encoded update message: {request_string}" )
+
+
+def craft_request( listing_dict ):
+    output = dict()
+    output[ 'message' ] = listing_dict
+    output[ 'api_details' ] = [ 'etsy', 'update_listing' ]
+    return output
 
 
 def format_update_data( data_list ):
