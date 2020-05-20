@@ -1,4 +1,5 @@
 from enum import Enum
+import logging
 
 # TODO: Applications is duplicated between encoder/decoder
 class Applications( Enum ):
@@ -107,6 +108,7 @@ class EtsyEncoder:
         @returns the encoded message
              
         """
+        logging.getLogger().debug( "Encoding an 'etsy' 'create_listing' message" )
         payload = bytearray( [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] )
         payload[ 0 ] |= Applications.ETSY.value
         payload[ 1 ] |= EtsyEncoder.Services.CREATE_LISTING.value
@@ -174,7 +176,9 @@ class EtsyEncoder:
         payload[ 11 ] = stp4
         payload[ 12 ] = stp5
 
-        print( ''.join( [ "%02X " %  x for x in payload ] ).strip() )
+        encoded = ''.join( [ "%02X " %  x for x in payload ] ).strip()
+        logging.getLogger().debug( f"Message encoded by encoder: {encoded}" )
+        
         return payload
 
 
