@@ -51,7 +51,7 @@ class TCPServerConnection:
             sock.sendall( message.encode()  )
 
           # if timeout is not inf set the timeout
-            return sock.recv( 4096 ).decode( 'utf-8' )
+            return sock.recv( 4096 )
 
 class MQTTServerConnection:
     """
