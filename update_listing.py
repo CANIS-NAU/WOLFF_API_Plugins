@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
 import json
+import socket
 import time
 import sys
 import argparse
@@ -77,12 +78,28 @@ def main():
     request_string = json.dumps( request_dict )
 
     logging.getLogger().debug( f"Post-encoded update message: {request_string}" )
+    logging.getLogger().debug( f"Attempting to connect to server at IP: {args.ip}, Port: {args.port}" )
+
+    with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as s:
+        s.connect( ( args.ip, args.port ) )
+
+        logging.getLogger().debug( f"Successfully connected to server." )
+        logging.getLogger().debug( f"Sending update request to server." )
+
+        s.sendall( request_string.encode( 'utf-8' ) )
+
+        logging.getLogger().debug( f"Data succesfully sent, waiting on response..." )
+
+        data = s.recv( 1024 )
+
+        logging.getLogger().debug( f"Response received from server: {data.decode( 'utf-8' )}" )
 
 
 def craft_request( listing_dict ):
     output = dict()
     output[ 'message' ] = listing_dict
     output[ 'api_details' ] = [ 'etsy', 'update_listing' ]
+    del listing_dict[ 'shipping_template_id' ]
     return output
 
 
