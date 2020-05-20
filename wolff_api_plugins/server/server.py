@@ -372,7 +372,9 @@ class MQTTServer( WOLFFServer ):
                 data_dict[ 'url' ] = ''.join( split )
                 logging.getLogger().debug( f"Data dictionary (post-id retrieval): {data_dict}")
 
-                self.do_request( data_dict )
+                result = self.do_request( data_dict )
+                result_status = result.status_code
+                logging.getLogger().debug( f"Request returned status: {result_status}, reason: '{result.text}'" )
                 conn.sendall( "SUCCESS\n".encode( 'utf-8' ) )
 
                 logging.getLogger().debug( "Sent response back to client." )
