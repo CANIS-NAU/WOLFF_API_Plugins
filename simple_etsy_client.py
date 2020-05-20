@@ -89,7 +89,6 @@ def main():
             )
 
     end_time = time.time()
-    # response can take a little bit
     logging.getLogger().info( f"Elapsed time: {end_time - start_time}" )
     logging.getLogger().debug( f"ID received from server: {int.from_bytes( resp, 'big' )}" )
 
