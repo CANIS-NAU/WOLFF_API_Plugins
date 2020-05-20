@@ -8,13 +8,13 @@ import argparse
 
 def main():
     argp = argparse.ArgumentParser( description = "Script to update an existing listing." ) 
-    argp.add_argument( '--ip', help = "IP of the Proxy server that an update request will be sent to." )
-    argp.add_argument( '--port', help = "Port of the proxy server's update_listing service.", type = int )
-    argp.add_argument( '--listing_id', help = "Listing id (as located in the file containing listings) of the id to update." )
+    argp.add_argument( '--ip', help = "IP of the Proxy server that an update request will be sent to.", required = True )
+    argp.add_argument( '--port', help = "Port of the proxy server's update_listing service.", type = int, required = True )
+    argp.add_argument( '--listing_id', help = "Listing id (as located in the file containing listings) of the id to update.", type = int, required = True )
     argp.add_argument( '--listings_file', help = "Name of the file containing listings that can be updated.",
                        default = "submitted_listings.json"
     )
-    argp.add_argument( '--update', action = 'append',
+    argp.add_argument( '--update', action = 'append', required = True,
                        help = "The value you wish to update, combined with its new value, separated by an 'equals'. "
                        'Example: title="This is the new title". To update multiple values, include this argument multiple times.'
     )
@@ -54,6 +54,49 @@ def main():
 
     logging.getLogger().debug( "Successfully parsed listing data" )
 
+    try:
+        target_listing = list( filter( lambda x: x[ 'listing_id' ] == args.listing_id, listings ) )[ 0 ]
+    except IndexError:
+        logging.getLogger().error( "Unable to find the indicated target listing." )
+        sys.exit( 1 )
+
+    logging.getLogger().debug( f"Data for target listing: {target_listing}" )
+    logging.getLogger().debug( f"Attempting to parse update data." )
+
+    update_dict = format_update_data( args.update )
+    logging.getLogger().debug( f"Update dictionary: {update_dict}" )
+
+    logging.getLogger().debug( f"Updating the target listing data with new data." )
+
+    target_listing.update( update_dict )
+
+    logging.getLogger().debug( f"Updated listing data: {target_listing}" )
+
+
+
+
+def format_update_data( data_list ):
+    output = dict()
+
+    for item in data_list:
+        key, value = item.split( '=' )
+
+        try:
+                value = int( value )
+                logging.getLogger().debug( f"Converted argument '{key}' into int." )
+        except Exception:
+            try:
+                value = float( value )
+                logging.getLogger().debug( f"Converted argument '{key}' into float." )
+            except Exception:
+                logging.getLogger().debug( f"Argument '{key}' determined to be string." )
+
+    
+        output[ key ] = value
+
+            
+
+    return output
 
 def get_listing_data( file_handle ):
     output = list()
