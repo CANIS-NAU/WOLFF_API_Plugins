@@ -1,4 +1,5 @@
 from .message import Message as Message
+import logging
 
 class Client:
     """ 
@@ -102,6 +103,7 @@ class Client:
 
         # for each method in api endpoint
         for method in self._endpoint.get_methods():
+            logging.getLogger().debug( f"Specializing client with method: {method.get_name()}" )
             self._specialize_with( self._endpoint, method )
 
     def get_message_type( self ):
