@@ -80,6 +80,7 @@ def main():
     logging.getLogger().debug( f"Post-encoded update message: {request_string}" )
     logging.getLogger().debug( f"Attempting to connect to server at IP: {args.ip}, Port: {args.port}" )
 
+    start_time = time.time()
     with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as s:
         s.connect( ( args.ip, args.port ) )
 
@@ -93,6 +94,12 @@ def main():
         data = s.recv( 1024 )
 
         logging.getLogger().debug( f"Response received from server: {data.decode( 'utf-8' )}" )
+
+    end_time = time.time()
+
+    elapsed_time = end_time - start_time
+
+    logging.getLogger().info( f"Elapsed time: {elapsed_time}" )
 
 
 def craft_request( listing_dict ):
