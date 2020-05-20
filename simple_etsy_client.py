@@ -3,6 +3,7 @@ import wolff_api_plugins.client.api_hook as hook
 import wolff_api_plugins.client.client as client
 import wolff_api_plugins.client.server_connection as conn
 import wolff_api_plugins.client.message as message
+import json
 import sys
 import time
 import logging
@@ -21,6 +22,10 @@ def main():
                      )
     argp.add_argument( '--log_file', help = "The name of the file to write log "
                        "information to.", default = "simple_etsy_client.log"
+                     )
+    argp.add_argument( '--output_submitted', help = "The name of the file to write information about "
+                       "the listings that have been created. This will be used by the script that updates "
+                       "listings.", default = "submitted_listings.json"
                      )
 
     handlers=[
@@ -82,15 +87,29 @@ def main():
                                 )
     etsy_client.specialize()
 
-    resp = etsy_client.create_listing( quantity = 2, title = "title_1",
-            description = "desc_1",
-            price = 1.11, who_made = 'i_did', is_supply = True,
-            when_made = 'made_to_order', shipping_template_id = 84634415230
-            )
+    # save args to a dict so we can write to a file to update later
+    request_args = { 'quantity': 2, 'title': "title_1",
+                     'description': "desc_1",
+                     'price': 1.11, 'who_made': 'i_did', 'is_supply': True,
+                     'when_made': 'made_to_order', 'shipping_template_id': 84634415230
+    }
+    resp = etsy_client.create_listing( **request_args )
+    resp_decoded = int.from_bytes( resp, 'big' )
 
     end_time = time.time()
     logging.getLogger().info( f"Elapsed time: {end_time - start_time}" )
-    logging.getLogger().debug( f"ID received from server: {int.from_bytes( resp, 'big' )}" )
+    logging.getLogger().debug( f"ID received from server: {resp_decoded}" )
+
+    logging.getLogger().debug( f"Opening {cli_args.output_submitted} to write listing record" )
+
+    with open( cli_args.output_submitted, 'a' ) as output_file:
+        request_args[ 'listing_id' ] = resp_decoded
+        to_write = json.dumps( request_args )
+
+        logging.getLogger().debug( f"String that will be written to file: {to_write}" )
+        output_file.write( f"{to_write}\n" )
+        logging.getLogger().debug( f"Wrote record to file" )
+        
 
 
 if __name__ == '__main__':
