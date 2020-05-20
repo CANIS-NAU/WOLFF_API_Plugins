@@ -3,6 +3,7 @@ import paho.mqtt.client as mqtt
 import socket 
 import time
 import threading
+import logging
 
 
 class TCPServerConnection:
@@ -42,15 +43,23 @@ class TCPServerConnection:
         for a response from the server, disconnects 
         after waiting and not getting a response.
         """
-        message.encode()
-
         # open the socket using this object's host and
+        logging.getLogger().debug( "Attempting to connect to server "
+                                  f"at IP: {self._ip}, Port: {self._port}"
+        )
         with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as sock:
             sock.connect( ( self._ip, self._port ) )
+            logging.getLogger().debug( "Successfully connected to the server" )
 
-            sock.sendall( message.encode()  )
+            encoded_message = message.encode()
 
-          # if timeout is not inf set the timeout
+            logging.getLogger().debug( f"Sending {encoded_message} to the server" )
+            
+            sock.sendall( encoded_message )
+
+            logging.getLogger().debug( f"Message successfully sent, awaiting response." )
+
+            # if timeout is not inf set the timeout
             return sock.recv( 4096 )
 
 class MQTTServerConnection:
