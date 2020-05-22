@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import logging
 import json
+import time
+import binascii
 import socket
 import time
 import sys
@@ -36,6 +38,35 @@ def main():
                                f"--listing_id: {args.listing_id}\n"
                                f"--log_file: {args.log_file}\n"
     )
+
+    start_time = time.time()
+
+    to_hex = lambda x: str( binascii.hexlify( x ) )
+
+    message = bytearray( 2 )
+    message[ 0 ] = 0x01
+    message[ 1 ] = 0x02
+
+    logging.getLogger().debug( f"First 2 bytes of message: {to_hex( message )}" )
+
+    listing_id_bytes = args.listing_id.to_bytes( 4, byteorder = 'big' )
+
+    logging.getLogger().debug( f"Listing ID: {args.listing_id}, as bytes: {to_hex( listing_id_bytes )}" )
+
+    message += listing_id_bytes
+
+    logging.getLogger().debug( f"Message after adding the ID: {to_hex( message ) }" )
+
+    message += bytearray( 7 )
+
+    logging.getLogger().debug( f"Message after adding padding: {to_hex( message ) }" )
+    logging.getLogger().debug( f"Message length: {len( message )}" )
+
+
+    end_time = time.time()
+
+
+    logging.getLogger().info( f"Elapsed time: {end_time - start_time}" )
 
 
 if __name__ == '__main__':
