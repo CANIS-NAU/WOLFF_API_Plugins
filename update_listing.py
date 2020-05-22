@@ -81,6 +81,7 @@ def main():
     logging.getLogger().debug( f"Attempting to connect to server at IP: {args.ip}, Port: {args.port}" )
 
     start_time = time.time()
+    logging.getLogger().info( f"TIMESTAMP Beginning of request: {start_time}" )
     with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as s:
         s.connect( ( args.ip, args.port ) )
 
@@ -99,6 +100,7 @@ def main():
 
     elapsed_time = end_time - start_time
 
+    logging.getLogger().info( f"TIMESTAMP End of request: {end_time}" )
     logging.getLogger().info( f"Elapsed time: {elapsed_time}" )
 
 

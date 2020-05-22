@@ -349,6 +349,8 @@ class MQTTServer( WOLFFServer ):
                                            f"IP: {host}, on port: {port}. "
                 )
 
+                logging.getLogger().info( "TIMESTAMP Connected to client at: {time.time()}" )
+
                 try:
                     data = conn.recv( 4096 )
                 except Exception as e:
@@ -382,6 +384,8 @@ class MQTTServer( WOLFFServer ):
                 result_status = result.status_code
                 logging.getLogger().debug( f"Request returned status: {result_status}, reason: '{result.text}'" )
                 conn.sendall( "SUCCESS\n".encode( 'utf-8' ) )
+
+                logging.getLogger().debug( f"TIMESTAMP Sending response back to client: {time.time()}" )
 
                 logging.getLogger().debug( "Sent response back to client." )
 
