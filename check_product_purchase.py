@@ -63,6 +63,24 @@ def main():
     logging.getLogger().debug( f"Message length: {len( message )}" )
 
 
+    logging.getLogger().debug( f"Attempting to connect to server at IP: {args.ip}, Port: {args.port}" )
+    with socket.socket( socket.AF_INET, socket.SOCK_STREAM ) as s:
+        s.connect( ( args.ip, args.port ) )
+
+        logging.getLogger().debug( f"Successfully connected to server." )
+        logging.getLogger().debug( f"Sending request to server." )
+
+        s.sendall( message )
+
+        logging.getLogger().debug( f"Data succesfully sent, waiting on response..." )
+
+        data = s.recv( 1024 )
+
+        logging.getLogger().debug( f"Response received from server: {to_hex( data )}" )
+
+
+        logging.getLogger().debug( f"Number of items that have been purchased: {int( data )}" )
+        
     end_time = time.time()
 
 
