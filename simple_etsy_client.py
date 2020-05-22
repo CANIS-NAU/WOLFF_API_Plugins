@@ -82,6 +82,8 @@ def main():
 
     start_time = time.time()
 
+    logging.getLogger().info( f"TIMESTAMP Beginning of request: {start_time}" )
+
     etsy_client = client.Client( connection = connect, endpoint = etsy_hook,
                                  message_type = message.EtsyMessage
                                 )
@@ -97,6 +99,7 @@ def main():
     resp_decoded = int.from_bytes( resp, 'big' )
 
     end_time = time.time()
+    logging.getLogger().info( f"TIMESTAMP End of request: {end_time}" )
     logging.getLogger().info( f"Elapsed time: {end_time - start_time}" )
     logging.getLogger().debug( f"ID received from server: {resp_decoded}" )
 
