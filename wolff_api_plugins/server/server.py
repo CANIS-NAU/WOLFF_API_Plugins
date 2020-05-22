@@ -77,10 +77,13 @@ class WOLFFServer:
         )
 
 
+        logging.getLogger().info( f"TIMESTAMP Message to etsy: {time.time()}" )
         if data_dict[ 'method' ][ 'http_method' ] == 'get':
             result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ] )
         else:
             result = getattr( request_handler, data_dict[ 'method' ][ 'http_method' ] )( data_dict[ 'url' ], data = data_dict[ 'message' ] )
+
+        logging.getLogger().info( f"TIMESTAMP Response from etsy: {time.time()}" )
         return result
 
     def start( self ):
@@ -263,6 +266,8 @@ class MQTTServer( WOLFFServer ):
                                        "MQTT server."
             )
 
+            logging.getLogger().info( f"TIMESTAMP Message from broker at: {time.time()}" )
+
             client_manager = ClientManager( 'clients', self.conn )
             # get the method name from the URL 
             logging.getLogger().debug( "Attempting to decode the data" )
@@ -298,6 +303,7 @@ class MQTTServer( WOLFFServer ):
             #topic = '/'.join( topic )
             time.sleep( 10 )
             logging.getLogger().debug( "Publishing response to MQTT server." )
+            logging.getLogger().info( f"TIMESTAMP Publish response to client: {time.time()}" )
             self.get_client().publish( topic, id, qos = 1 )
             logging.getLogger().debug( "Successfully published response." )
 
