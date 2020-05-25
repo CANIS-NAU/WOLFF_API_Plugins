@@ -1,3 +1,6 @@
+import logging
+import re
+import sys
 
 class APIMap:
     """
@@ -25,7 +28,12 @@ class APIMap:
                                                        'http_method': 'put',
                                                        'service_identifier': 'listing_id'
                                                      },
-                                   'auth_type': "oauth1"
+                                   'check_listing_stock': { 'uri': '/listings/:listing_id',
+                                                            'http_method': 'get',
+                                                            'service_identifier': 'listing_id'
+                                                     },
+                                   'auth_type': "oauth1",
+                                   'uri_re': re.compile( ":((?:[a-zA-Z]|_)+)" )
                                   }
                        }
 
