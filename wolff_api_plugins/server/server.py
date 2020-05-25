@@ -469,8 +469,8 @@ class WOLFFNodeProxy( MQTTServer ):
         return self.client_port
 
     def decode_data( self, encoded_message ):
-        logging.getLogger().debug( "Uh oh! This implementation of 'decode_data' is empty! "
-                                   "Are you sure you meant to call it?"
+        logging.getLogger().warning( "Uh oh! This implementation of 'decode_data' is empty! "
+                                     "Are you sure you meant to call it?"
         )
         pass
 
