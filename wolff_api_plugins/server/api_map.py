@@ -98,3 +98,12 @@ class APIMap:
             return data[ 'message' ][ service_identifier ]
         elif identifier == 'listing_id':
             return data[ 'listing_id' ]
+
+    def add_special_params( self, service, method, data ):
+        try:
+            special_params = self.api_map[ service ][ method ][ 'special' ]
+        except KeyError:
+            return
+
+        for param_name, value in special.items():
+            data[ 'message' ][ param_name ] = value
