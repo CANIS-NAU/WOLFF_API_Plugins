@@ -41,7 +41,20 @@ class APIMap:
     def get_base_url( self, service ):
         return self.api_map[ service ][ 'base_url' ]
     def get_uri( self, service, method ):
+        logging.getLogger().debug( f"Retrieving URI for: {service}/{method}" )
         return self.api_map[ service ][ method ][ 'uri' ]
+
+    def uri_is_substitutable( self, uri ):
+        return ':' in uri
+
+    def perform_uri_replacement( self, uri, uri_re, value ):
+        return re.sub( uri_re, value, uri )
+
+    def get_replacement( self, service, method, data_dict, database ):
+        identifier = self.get_service_identifier( service, method )
+        if identifier == 'listing_id':
+            listing_id = database.get_record_id( data_dict[ 'listing_id' ] )
+            return listing_id
 
     def get_complete_url( self, service, method,
                          replace = None # replacement to be used later
