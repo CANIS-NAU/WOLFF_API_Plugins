@@ -22,7 +22,8 @@ class APIMap:
         self.api_map = { "etsy": { 'base_url': 'https://openapi.etsy.com/v2',
                                    'create_listing': { 'uri': 'listings',
                                                        'http_method': 'post',
-                                                       'service_identifier': 'shipping_template_id'
+                                                       'service_identifier': 'shipping_template_id',
+                                                       'special': { 'taxonomy_id': 1 }
                                                      },
                                    'update_listing': { 'uri': '/listings/:listing_id',
                                                        'http_method': 'put',
