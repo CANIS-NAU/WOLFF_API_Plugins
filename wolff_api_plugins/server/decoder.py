@@ -1,4 +1,5 @@
 from enum import Enum
+import logging
 
 class Applications( Enum ):
     ETSY = 1
@@ -37,7 +38,9 @@ class EtsyDecoder:
         """
         CREATE_LISTING = 1
 
-        UPDATE_LISTING = 2
+        CHECK_LISTING_STOCK = 2
+
+        UPDATE_LISTING = 3
 
         @classmethod
         def has_value( cls, value ):
@@ -81,14 +84,42 @@ class EtsyDecoder:
         Get a method that will decode messages for a certain service.
         """
         if message[ 1 ] == EtsyDecoder.Services.CREATE_LISTING.value:
+            logging.getLogger().debug( "Retrieving a decoder for ( etsy, create_listing )" )
             return self._decode_create_listing_message
+        elif message[ 1 ] == EtsyDecoder.Services.CHECK_LISTING_STOCK.value:
+            logging.getLogger().debug( "Retrieving a decoder for ( etsy, check_listing_stock )" )
+            return self._decode_check_listing_stock_message
+        else:
+            logging.getLogger().error( f"No decoder can be created for the message: {message}" )
 
     def decode( self, message ):
-        assert( self.is_etsy_message( message ) )
+        try:
+            assert( self.is_etsy_message( message ) )
+        except AssertionError:
+            logging.getLogger().error( f"The supplied message: '{message}', was not an Etsy message!" )
 
         decode_fn = self.get_service_decoder( message )
 
+        logging.getLogger().debug( f"Successfully retrieved a decoder ('{decode_fn.__name__}') "
+                                   f"for the message: {message}" )
+
         return decode_fn( message )
+
+    def _decode_check_listing_stock_message( self, message ):
+        logging.getLogger().debug( "Attempting to decode a 'check_listing_stock' message" )
+        output = dict()
+        output[ 'api_details' ] = ( 'etsy', 'check_listing_stock' )
+        listing_id_bytes = message[ 2:6 ]
+
+        logging.getLogger().debug( f"Listing bytes: {listing_id_bytes}" )
+
+        listing_id = int.from_bytes( listing_id_bytes, byteorder = 'big' )
+        logging.getLogger().debug( f"Listing id integer: {listing_id}" )
+
+        output[ 'message' ] = { 'listing_id': listing_id }
+        logging.getLogger().debug( f"Final decoded message: {output}" )
+
+        return output
 
     def _get_price( self, price_bytes ):
         """
