@@ -116,7 +116,6 @@ class EtsyDecoder:
         listing_id = int.from_bytes( listing_id_bytes, byteorder = 'big' )
         logging.getLogger().debug( f"Listing id integer: {listing_id}" )
 
-        output[ 'message' ] = { 'listing_id': listing_id }
         output [ 'listing_id' ] = listing_id
         logging.getLogger().debug( f"Final decoded message: {output}" )
 
