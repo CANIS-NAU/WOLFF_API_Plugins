@@ -57,10 +57,30 @@ class APIMap:
             return listing_id
 
     def get_complete_url( self, service, method,
-                         replace = None # replacement to be used later
+                         replace = None
                        ):
-        return f'{self.get_base_url( service )}' \
-               f'/{self.get_uri( service, method) }/' 
+        complete_url = f'{self.get_base_url( service )}'
+
+        request_uri = self.get_uri( service, method )
+
+        if self.uri_is_substitutable( request_uri ) and not replace:
+            error_str = f"A substitutable URI ('{request_uri}') was "
+            "included, but the 'replace' argument is None"
+
+            logging.getLogger().error( error_str )
+            raise ValueError( error_str )
+
+        elif self.uri_is_substitutable( request_uri ) and replace:
+            request_uri = self.perform_uri_replacement( request_uri,
+                                                        self.api_map[ service ][ 'uri_re' ],
+                                                        replace
+                                                      )
+            logging.getLogger().debug( f"URI after replacement: {request_uri}" )
+
+        complete_url += f"/{request_uri}/"
+
+        logging.getLogger().debug( f"Complete url: {complete_url}" )
+        return complete_url
 
     def get_http_method( self, service, method ):
         return self.api_map[ service ][ method ][ 'http_method' ]
