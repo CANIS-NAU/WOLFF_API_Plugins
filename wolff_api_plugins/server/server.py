@@ -1,5 +1,6 @@
 from requests_oauthlib import OAuth1Session
 import socket
+import traceback
 import json
 import paho.mqtt.client as mqtt
 import time
@@ -190,8 +191,6 @@ class WOLFFServer:
 
 
         logging.getLogger().debug( f"Service: {service}, Method: {method}" )
-        data_dict[ 'url' ] = api_map.get_complete_url( service, method )
-        logging.getLogger().debug( f"URL for request: {data_dict[ 'url' ]}" )
         http_method =  api_map.get_http_method( service, method )
         logging.getLogger().debug( f"HTTP Method for request: {http_method}" )
         auth_type = api_map.get_auth_type( service )
@@ -200,12 +199,26 @@ class WOLFFServer:
         logging.getLogger().debug( f"Service identifier type for {service} "
                                    f"{method}: {service_identifier}"
         )
-        service_identifier_value = data_dict[ 'message' ][ service_identifier ]
-        data_dict[ 'message' ][ 'taxonomy_id' ] = 1
 
+        replacement_value = None
+
+        if api_map.uri_is_substitutable( api_map.get_uri( service, method ) ):
+            logging.getLogger().debug( f"URI for {service}/{method} deemed to be substitutable." )
+            replacement_value = api_map.get_replacement( service, method, data_dict, self.conn )
+            
+        logging.getLogger().debug( f"URI Replacement value (may be None): {replacement_value}" )
+
+        data_dict[ 'url' ] = api_map.get_complete_url( service, method,
+                                                       replace = replacement_value
+        )
+
+
+        service_identifier_value = data_dict[ service_identifier ]
+        api_map.add_special_params( service, method, data_dict )
 
         logging.getLogger().debug( f"Service identifier for request: {service_identifier}" )
         logging.getLogger().debug( f"Service identifier value for request: {service_identifier_value}" )
+        logging.getLogger().debug( f"URL for request: {data_dict[ 'url' ]}" )
 
         client_id = client_manager \
                     .get_client_by_service_identifier( service,
