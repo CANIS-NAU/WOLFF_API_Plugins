@@ -41,6 +41,8 @@ def main():
 
     start_time = time.time()
 
+    logging.getLogger().info( "TIMESTAMP beginning of check_product_purchase: {start_time}" )
+
     to_hex = lambda x: str( binascii.hexlify( x ) )
 
     message = bytearray( 2 )
@@ -85,6 +87,7 @@ def main():
         
     end_time = time.time()
 
+    logging.getLogger().info( "TIMESTAMP end of check_product_purchase: {end_time}" )
 
     logging.getLogger().info( f"Elapsed time: {end_time - start_time}" )
 
