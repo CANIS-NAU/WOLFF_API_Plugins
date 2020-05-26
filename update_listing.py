@@ -107,6 +107,7 @@ def main():
 def craft_request( listing_dict ):
     output = dict()
     output[ 'message' ] = listing_dict
+    output[ 'listing_id' ] = listing_dict[ 'listing_id' ]
     output[ 'api_details' ] = [ 'etsy', 'update_listing' ]
     del listing_dict[ 'shipping_template_id' ]
     return output
