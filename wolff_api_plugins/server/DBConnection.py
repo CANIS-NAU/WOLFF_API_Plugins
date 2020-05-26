@@ -46,5 +46,37 @@ class SQLite3DBConnection:
                  )
         return c.fetchone()[ 0 ]
 
+    def get_listing_stock( self, record_id ):
+        c = self.conn.cursor()
+        c.execute(
+            '''SELECT QuantityInStock
+               FROM EtsyListingStock
+               WHERE RecordId = ?
+            ''', ( record_id, )
+
+        )
+
+        return c.fetchone()[ 0 ]
+
+    def update_listing_stock( self, record_id, quantity ):
+        c = self.conn.cursor()
+        c.execute(
+            '''UPDATE EtsyListingStock 
+               SET QuantityInStock = ?
+               WHERE RecordId = ?
+            ''', ( quantity, record_id, )
+
+        )
+
+    def add_listing_stock( self, record_id, quantity ):
+        c = self.conn.cursor()
+        c.execute(
+            '''
+            INSERT INTO EtsyListingStock (RecordId, QuantityInStock)
+            VALUES ( ?, ? )''',
+            ( record_id, quantity )
+            )
+        self.conn.commit()
+
     def get_record_id( self, record_id ):
         return self.get_listing_id( record_id )
