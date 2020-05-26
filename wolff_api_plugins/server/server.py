@@ -309,12 +309,9 @@ class MQTTServer( WOLFFServer ):
         
 
             topic = str( msg.topic ).split( '/' )
-            #topic[ 0 ] = 'responses'
             topic = 'responses'
 
             # Note: topic is of the form /posts/client_x, where x is the ID for the client
-            #topic = '/'.join( topic )
-            time.sleep( 10 )
             logging.getLogger().debug( "Publishing response to MQTT server." )
             logging.getLogger().info( f"TIMESTAMP Publish response to client: {time.time()}" )
             self.get_client().publish( topic, id, qos = 1 )
@@ -382,16 +379,6 @@ class MQTTServer( WOLFFServer ):
 
                 self.annotate_data( data_dict, client_manager )
                 logging.getLogger().debug( f"Data dictionary (post-annotation): {data_dict}")
-
-                # TODO: Fix this lazy hack
-                listing_id = self.conn.get_record_id( data_dict[ 'message' ][ 'listing_id' ] )
-                logging.getLogger().debug( f"Listing id retrieved from DB: {listing_id}")
-                url = data_dict[ 'url' ]
-                split = url.split( ':' )
-                split[ -1 ] = listing_id
-                split[ 0 ] = 'https:'
-                data_dict[ 'url' ] = ''.join( split )
-                logging.getLogger().debug( f"Data dictionary (post-id retrieval): {data_dict}")
 
                 result = self.do_request( data_dict )
                 result_status = result.status_code
