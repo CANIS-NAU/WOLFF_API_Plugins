@@ -79,7 +79,9 @@ def main():
         logging.getLogger().debug( f"Response received from server: {to_hex( data )}" )
 
 
-        logging.getLogger().debug( f"Number of items that have been purchased: {int( data )}" )
+        response_region = data[ 2:6 ]
+        num_purchased = int.from_bytes( response_region, byteorder = 'big' )
+        logging.getLogger().debug( f"Number of items that have been purchased: {num_purchased}" )
         
     end_time = time.time()
 
