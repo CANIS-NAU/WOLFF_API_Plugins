@@ -53,7 +53,7 @@ class APIMap:
     def get_replacement( self, service, method, data_dict, database ):
         identifier = self.get_service_identifier( service, method )
         if identifier == 'listing_id':
-            listing_id = database.get_record_id( data_dict[ 'listing_id' ] )
+            listing_id = database.get_listing_id( data_dict[ 'listing_id' ] )
             return listing_id
 
     def get_complete_url( self, service, method,
