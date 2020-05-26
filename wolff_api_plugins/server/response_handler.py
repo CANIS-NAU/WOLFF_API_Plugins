@@ -50,19 +50,30 @@ class CheckListingStockResponseHandler:
         self._db = db_connection
 
     def handle_response( self, resp_message, client_id ):
-        logging.getLogger().warning( "CheckListingStockResponseHandler.handle_response is currently not implemented. "
-                                     "It uses a dummy value that can be used to simulate a response from the server."
-                                   )
+
         decoded_response = json.loads( resp_message )[ 'results' ][ 0 ]
+
         num_listings_now = decoded_response[ 'quantity' ]
-        record_id = self._db.get_record_id( decoded_response[ 'listing_id' ] )
+
+        listing_id = decoded_response[ 'listing_id' ]
+        record_id = self._db.get_record_id( listing_id )
+
+        logging.getLogger().debug( f"The record id of listing '{listing_id}' is '{record_id}'" )
 
         num_listings_db = self._db.get_listing_stock( record_id )
+
+        logging.getLogger().debug( f"Quantity of product currently: {num_listings_now}" )
+        logging.getLogger().debug( f"Quantity of product in database: {num_listings_db}" )
+        logging.getLogger().debug( f"Updating the quantity of record: {record_id}" )
 
         self._db.update_listing_stock( record_id, num_listings_now )
 
         num_listings_sold = num_listings_db - num_listings_now 
+
+        logging.getLogger().debug( f"Number of listings that have been sold (int): {num_listings_sold}" )
         num_listings_sold_bytes = num_listings_sold.to_bytes( 4, byteorder = 'big' )
+        logging.getLogger().debug( "Number of listings that have "
+                                   f"been sold (bytes): {num_listings_sold_bytes}" )
 
         ret_val = bytearray( 2 )
         ret_val[ 0 ] = 0x01
