@@ -302,13 +302,11 @@ class MQTTServer( WOLFFServer ):
                      .handle_response( decoded_content,
                                        data_dict[ 'client_id' ]
                      )
-                logging.getLogger().debug( f"ID from the database: {str( id )}" )
+                logging.getLogger().debug( f"Response from ResultHandler: {str( id )}" )
             except Exception as e:
                 logging.getLogger().error( f"ERROR: {str(e)}" )
                 sys.exit( 1 )
         
-
-            topic = str( msg.topic ).split( '/' )
             topic = 'responses'
 
             # Note: topic is of the form /posts/client_x, where x is the ID for the client
@@ -450,7 +448,7 @@ class WOLFFNodeProxy( MQTTServer ):
             # logging.getLogger().debug( f"Data: {int.from_bytes( msg.msg, byteorder = 'big' )}" )
             if msg.payload is None:
                 logging.getLogger().debug( "Message received is None!" )
-            self.message_buffer = int( msg.payload.decode( 'utf-8' ) )
+            self.message_buffer = msg.payload
             with self.cond:
                 self.cond.notify()
             logging.getLogger().debug( f"Message data: {self.message_buffer}" )
@@ -545,5 +543,5 @@ class WOLFFNodeProxy( MQTTServer ):
                     logging.getLogger().debug( "Response received, "
                                                f"sending '{self.message_buffer}' to client."
                     )
-                    conn.sendall( struct.pack( ">I", self.message_buffer ) )
+                    conn.sendall( self.message_buffer )
                     self.message_buffer = None
