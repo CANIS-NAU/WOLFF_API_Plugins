@@ -33,9 +33,16 @@ class CreateListingResponseHandler:
         
     def handle_response( self, resp_message, client_id ):
         logging.getLogger().debug( "Attempting to retrieve a result from the database." )
-        listing_id = json.loads( resp_message )[ 'results' ][ 0 ][ 'listing_id' ]
-        logging.getLogger().debug( f"ID Retrieved: {listing_id}" )
-        return self._db.add_listing( listing_id, client_id ).to_bytes( 4, byteorder = 'big' )
+        decoded_response = json.loads( resp_message )[ 'results' ][ 0 ]
+        listing_id = decoded_response[ 'listing_id' ]
+        logging.getLogger().debug( f"Etsy Listing ID Retrieved: {listing_id}" )
+        record_id = self._db.add_listing( listing_id, client_id )
+        logging.getLogger().debug( f"Database record id: {record_id}" )
+        logging.getLogger().debug( f"Writing quantity: {decoded_response[ 'quantity' ]} to the database." )
+        self._db.add_listing_stock( record_id, decoded_response[ 'quantity' ] )
+        record_bytes = record_id.to_bytes( 4, byteorder = 'big' )
+
+        return record_bytes
 
 
 class CheckListingStockResponseHandler:
