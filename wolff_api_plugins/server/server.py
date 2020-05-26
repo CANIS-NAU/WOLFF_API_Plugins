@@ -381,7 +381,21 @@ class MQTTServer( WOLFFServer ):
                 result = self.do_request( data_dict )
                 result_status = result.status_code
                 logging.getLogger().debug( f"Request returned status: {result_status}, reason: '{result.text}'" )
-                conn.sendall( "SUCCESS\n".encode( 'utf-8' ) )
+                if result_status == 200:
+                    record_id = data_dict[ 'listing_id' ]
+                    quantity = data_dict[ 'message' ][ 'quantity' ]
+
+                    logging.getLogger().debug( f"Updating listing with record id '{record_id}' "
+                                               f"with quantity {quantity}"
+                    )
+                    self.conn.update_listing_stock( record_id,
+                                                    quantity
+                    )
+                    logging.getLogger().debug( "Sending success response back to client." )
+                    conn.sendall( "SUCCESS\n".encode( 'utf-8' ) )
+                else:
+                    logging.getLogger().debug( "Sending failure response back to client." )
+                    conn.sendall( "FAILURE\n".encode( 'utf-8' ) )
 
                 logging.getLogger().debug( f"TIMESTAMP Sending response back to client: {time.time()}" )
 
