@@ -95,7 +95,7 @@ class APIMap:
         identifier = self.get_service_identifier( service, method )
 
         if identifier == 'shipping_template_id':
-            return data[ 'message' ][ service_identifier ]
+            return data[ 'message' ][ identifier ]
         elif identifier == 'listing_id':
             return data[ 'listing_id' ]
 
@@ -105,5 +105,5 @@ class APIMap:
         except KeyError:
             return
 
-        for param_name, value in special.items():
+        for param_name, value in special_params.items():
             data[ 'message' ][ param_name ] = value
