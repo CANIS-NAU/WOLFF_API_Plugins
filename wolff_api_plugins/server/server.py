@@ -213,7 +213,7 @@ class WOLFFServer:
         )
 
 
-        service_identifier_value = data_dict[ service_identifier ]
+        service_identifier_value = api_map.get_identifier_value( service, method, data_dict )
         api_map.add_special_params( service, method, data_dict )
 
         logging.getLogger().debug( f"Service identifier for request: {service_identifier}" )
