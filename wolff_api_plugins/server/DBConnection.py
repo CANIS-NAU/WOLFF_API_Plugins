@@ -75,7 +75,7 @@ class SQLite3DBConnection:
             INSERT INTO EtsyListingStock (RecordId, QuantityInStock)
             VALUES ( ?, ? )''',
             ( record_id, quantity )
-            )
+        )
         self.conn.commit()
 
     def get_record_id( self, record_id ):
