@@ -53,5 +53,22 @@ class CheckListingStockResponseHandler:
         logging.getLogger().warning( "CheckListingStockResponseHandler.handle_response is currently not implemented. "
                                      "It uses a dummy value that can be used to simulate a response from the server."
                                    )
+        decoded_response = json.loads( resp_message )[ 'results' ][ 0 ]
+        num_listings_now = decoded_response[ 'quantity' ]
+        record_id = self._db.get_record_id( decoded_response[ 'listing_id' ] )
 
-        return bytearray( [ 0x01, 0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ] )
+        num_listings_db = self._db.get_listing_stock( record_id )
+
+        self._db.update_listing_stock( record_id, num_listings_now )
+
+        num_listings_sold = num_listings_db - num_listings_now 
+        num_listings_sold_bytes = num_listings_sold.to_bytes( 4, byteorder = 'big' )
+
+        ret_val = bytearray( 2 )
+        ret_val[ 0 ] = 0x01
+        ret_val[ 1 ] = 0x02
+
+        ret_val += num_listings_sold_bytes 
+        ret_val += bytearray( 7 )
+
+        return ret_val
