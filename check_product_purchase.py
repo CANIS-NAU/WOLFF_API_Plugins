@@ -87,7 +87,7 @@ def main():
         
     end_time = time.time()
 
-    logging.getLogger().info( "TIMESTAMP end of check_product_purchase: {end_time}" )
+    logging.getLogger().info( f"TIMESTAMP end of check_product_purchase: {end_time}" )
 
     logging.getLogger().info( f"Elapsed time: {end_time - start_time}" )
 
