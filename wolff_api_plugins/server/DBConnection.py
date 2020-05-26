@@ -78,5 +78,11 @@ class SQLite3DBConnection:
         )
         self.conn.commit()
 
-    def get_record_id( self, record_id ):
-        return self.get_listing_id( record_id )
+    def get_record_id( self, listing_id ):
+        c = self.conn.cursor()
+        c.execute( '''SELECT RecordID 
+                      FROM AppRecord 
+                      WHERE ListingValue = ?
+                   ''', ( listing_id, )
+                 )
+        return c.fetchone()[ 0 ]
