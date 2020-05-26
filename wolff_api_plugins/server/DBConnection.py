@@ -67,6 +67,7 @@ class SQLite3DBConnection:
             ''', ( quantity, record_id, )
 
         )
+        self.conn.commit()
 
     def add_listing_stock( self, record_id, quantity ):
         c = self.conn.cursor()
