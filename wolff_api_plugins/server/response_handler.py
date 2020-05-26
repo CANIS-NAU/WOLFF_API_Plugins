@@ -35,7 +35,7 @@ class CreateListingResponseHandler:
         logging.getLogger().debug( "Attempting to retrieve a result from the database." )
         listing_id = json.loads( resp_message )[ 'results' ][ 0 ][ 'listing_id' ]
         logging.getLogger().debug( f"ID Retrieved: {listing_id}" )
-        return self._db.add_listing( listing_id, client_id )
+        return self._db.add_listing( listing_id, client_id ).to_bytes( 4, byteorder = 'big' )
 
 
 class CheckListingStockResponseHandler:
