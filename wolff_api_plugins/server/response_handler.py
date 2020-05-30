@@ -42,7 +42,13 @@ class CreateListingResponseHandler:
         self._db.add_listing_stock( record_id, decoded_response[ 'quantity' ] )
         record_bytes = record_id.to_bytes( 4, byteorder = 'big' )
 
-        return record_bytes
+        ret_val = bytearray( 2 )
+        ret_val[ 0 ] = 0x01
+        ret_val[ 1 ] = 0x01
+        ret_val += record_bytes
+        ret_val += bytearray( 7 )
+
+        return ret_val
 
 
 class CheckListingStockResponseHandler:
