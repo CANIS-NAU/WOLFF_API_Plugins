@@ -96,7 +96,7 @@ def main():
                      'when_made': 'made_to_order', 'shipping_template_id': 84634415230
     }
     resp = etsy_client.create_listing( **request_args )
-    resp_decoded = int.from_bytes( resp, 'big' )
+    resp_decoded = int.from_bytes( resp[ 2 : 6 ], 'big' )
 
     end_time = time.time()
     logging.getLogger().info( f"TIMESTAMP End of request: {end_time}" )
