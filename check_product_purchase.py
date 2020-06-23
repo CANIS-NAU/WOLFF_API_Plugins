@@ -41,7 +41,7 @@ def main():
 
     start_time = time.time()
 
-    logging.getLogger().info( "TIMESTAMP beginning of check_product_purchase: {start_time}" )
+    logging.getLogger().info( f"TIMESTAMP beginning of check_product_purchase: {start_time}" )
 
     to_hex = lambda x: str( binascii.hexlify( x ) )
 
