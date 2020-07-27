@@ -442,9 +442,8 @@ class WOLFFNodeProxy( MQTTServer ):
             Callback used by Paho MQTT upon connection 
             with the MQTT broker.
             """
-            print( "Connected with result code " + str( rc )  )
+            logging.getLogger().debug( "Connected with result code " + str( rc )  )
 
-            #client.subscribe( 'responses/client_#' )
             client.subscribe( 'responses' )
             for chan in channels:
                 client.subscribe( chan )
