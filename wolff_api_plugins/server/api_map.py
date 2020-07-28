@@ -45,12 +45,28 @@ class APIMap:
         return self.api_map[ service ][ method ][ 'uri' ]
 
     def uri_is_substitutable( self, uri ):
+        """
+        Some APIs have parameters that go in the URL of the request itself. 
+        For example, the URI for Etsy's update_listing has the form: 
+        '/listings/:listing_id' where ':listing_id' is a variable that is supposed to be 
+        replaced with the actual ID of the listing. This method returns true if the specified uri 
+        is one that takes a substitubable parameter. 
+        """
         return ':' in uri
 
     def perform_uri_replacement( self, uri, uri_re, value ):
+        """
+        Perform URI replacement, given the URI the replacement should go into,
+        the Regular expression that will allow the replacement, and the value that 
+        should go into the new URI.
+        """
         return re.sub( uri_re, value, uri )
 
     def get_replacement( self, service, method, data_dict, database ):
+        """
+        Get the replacement value for a URI value, serivce, method, and data dict containing 
+        the request. A Database may be queried to retrieve the value.
+        """
         identifier = self.get_service_identifier( service, method )
         if identifier == 'listing_id':
             listing_id = database.get_listing_id( data_dict[ 'listing_id' ] )
@@ -59,6 +75,14 @@ class APIMap:
     def get_complete_url( self, service, method,
                          replace = None
                        ):
+        """
+        Get the complete url for a request. 
+        @param service The service the request is being made to
+        @param method the method of the request that is being made to the service.
+        @param replace If included, the value for this parameter will be substituted into the 
+               URL of the request
+        @returns the complete URL to which an API request may be made.
+        """
         complete_url = f'{self.get_base_url( service )}'
 
         request_uri = self.get_uri( service, method )
@@ -100,6 +124,16 @@ class APIMap:
             return data[ 'listing_id' ]
 
     def add_special_params( self, service, method, data ):
+        """
+        Add any necessary "special" parameters for the service and 
+        method to the data dictionary. A special parameter is one that is not 
+        specified by the user, but needs to be included to form a valid request.
+        An example of this is the 'taxonomy_id' of the create_listing request. 
+
+        @param service the string name of the service that has the special parameter
+        @param method the method within the service to find the special parameter
+        @param data The data dict to which the special parameter will be added
+        """
         try:
             special_params = self.api_map[ service ][ method ][ 'special' ]
         except KeyError:
