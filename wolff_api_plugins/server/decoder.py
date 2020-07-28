@@ -155,6 +155,21 @@ class EtsyDecoder:
         @param message an encoded message
         @returns A dictionary containing the arguments for create_listing
                  and their values.
+        The dictionary is formatted as follows:
+        {
+          'api_details': ( 'etsy', 'create_listing' ),
+          'message': {   
+                        'title': XX,
+                        'description': XX
+                        'quantity': XX,
+                        'price': XX,
+                        'who_made': XX,
+                        'when_made': XX,
+                        'is_supply': XX,
+                        'shipping_template_': XX
+                     }
+
+        }
         """
         decoded_message = dict()
         output = dict()
